@@ -41,8 +41,8 @@ namespace DotNetty.Transport.Libuv
         private readonly string _pipeName;
         private Pipe _pipe;
 
-        internal WorkerEventLoop(WorkerEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(parent, threadFactory, rejectedHandler, breakoutInterval)
+        internal WorkerEventLoop(WorkerEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, rejectedHandler, breakoutInterval, taskSchedulerType)
         {
             if (parent is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.parent); }
 

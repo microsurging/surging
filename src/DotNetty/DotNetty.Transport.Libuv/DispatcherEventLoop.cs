@@ -40,12 +40,17 @@ namespace DotNetty.Transport.Libuv
         private IServerNativeUnsafe _nativeUnsafe;
 
         internal DispatcherEventLoop(IEventLoopGroup parent)
-            : this(parent, DefaultThreadFactory<DispatcherEventLoop>.Instance)
+            : this(parent, DefaultThreadFactory<DispatcherEventLoop>.Instance, TaskSchedulerType.Default)
         {
         }
 
-        internal DispatcherEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory)
-            : base(parent, threadFactory, RejectedExecutionHandlers.Reject(), DefaultBreakoutInterval)
+        internal DispatcherEventLoop(IEventLoopGroup parent, TaskSchedulerType taskSchedulerType)
+          : this(parent, DefaultThreadFactory<DispatcherEventLoop>.Instance, taskSchedulerType)
+        {
+        }
+
+        internal DispatcherEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, RejectedExecutionHandlers.Reject(), DefaultBreakoutInterval,TaskSchedulerType.Default)
         {
             if (parent is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.parent); }
 

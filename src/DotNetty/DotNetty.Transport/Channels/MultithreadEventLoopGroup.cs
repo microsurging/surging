@@ -49,65 +49,75 @@ namespace DotNetty.Transport.Channels
         {
         }
 
+        public MultithreadEventLoopGroup( TaskSchedulerType taskSchedulerType)
+          : base(0, group => new SingleThreadEventLoop(group, taskSchedulerType))
+        {
+        }
+
+        public MultithreadEventLoopGroup(int nThreads, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new SingleThreadEventLoop(group, taskSchedulerType))
+        {
+        }
+
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
         public MultithreadEventLoopGroup(TimeSpan breakoutInterval)
-            : this(0, breakoutInterval)
+            : this(0, breakoutInterval, TaskSchedulerType.Default)
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
         public MultithreadEventLoopGroup(IRejectedExecutionHandler rejectedHandler)
-            : this(0, rejectedHandler)
+            : this(0, rejectedHandler, TaskSchedulerType.Default)
         {
         }
 
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler)
-            : base(nThreads, group => new SingleThreadEventLoop(group, rejectedHandler))
+        public MultithreadEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new SingleThreadEventLoop(group, rejectedHandler, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, TimeSpan breakoutInterval)
-            : base(nThreads, group => new SingleThreadEventLoop(group, breakoutInterval))
+        public MultithreadEventLoopGroup(int nThreads, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new SingleThreadEventLoop(group, breakoutInterval, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(nThreads, group => new SingleThreadEventLoop(group, rejectedHandler, breakoutInterval))
+        public MultithreadEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new SingleThreadEventLoop(group, rejectedHandler, breakoutInterval, taskSchedulerType))
         {
         }
 
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
         public MultithreadEventLoopGroup(IThreadFactory threadFactory)
-            : this(0, threadFactory)
+            : this(0, threadFactory, TaskSchedulerType.Default)
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory)
-            : base(nThreads, group => new SingleThreadEventLoop(group, threadFactory))
+        public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new SingleThreadEventLoop(group, threadFactory,taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, TimeSpan breakoutInterval)
-            : base(nThreads, group => new SingleThreadEventLoop(group, threadFactory, breakoutInterval))
+        public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new SingleThreadEventLoop(group, threadFactory, breakoutInterval, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler)
-            : base(nThreads, group => new SingleThreadEventLoop(group, threadFactory, rejectedHandler))
+        public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new SingleThreadEventLoop(group, threadFactory, rejectedHandler, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(nThreads, group => new SingleThreadEventLoop(group, threadFactory, rejectedHandler, breakoutInterval))
+        public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new SingleThreadEventLoop(group, threadFactory, rejectedHandler, breakoutInterval, taskSchedulerType))
         {
         }
 
@@ -125,29 +135,29 @@ namespace DotNetty.Transport.Channels
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, IEventExecutorChooserFactory<SingleThreadEventLoop> chooserFactory, TimeSpan breakoutInterval)
-            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, breakoutInterval))
+        public MultithreadEventLoopGroup(int nThreads, IEventExecutorChooserFactory<SingleThreadEventLoop> chooserFactory, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, breakoutInterval, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
-        public MultithreadEventLoopGroup(int nThreads, IEventExecutorChooserFactory<SingleThreadEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler)
-            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, rejectedHandler))
+        public MultithreadEventLoopGroup(int nThreads, IEventExecutorChooserFactory<SingleThreadEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, rejectedHandler, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
         public MultithreadEventLoopGroup(int nThreads, IEventExecutorChooserFactory<SingleThreadEventLoop> chooserFactory,
-            IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, rejectedHandler, breakoutInterval))
+            IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, rejectedHandler, breakoutInterval, taskSchedulerType))
         {
         }
 
 
         /// <summary>Creates a new instance of <see cref="MultithreadEventLoopGroup"/>.</summary>
         public MultithreadEventLoopGroup(int nThreads, IThreadFactory threadFactory, IEventExecutorChooserFactory<SingleThreadEventLoop> chooserFactory,
-            IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, threadFactory, rejectedHandler, breakoutInterval))
+            IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new SingleThreadEventLoop(group, threadFactory, rejectedHandler, breakoutInterval, taskSchedulerType))
         {
         }
     }

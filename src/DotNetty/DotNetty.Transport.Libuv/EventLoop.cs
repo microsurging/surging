@@ -34,13 +34,18 @@ namespace DotNetty.Transport.Libuv
 
     public sealed class EventLoop : LoopExecutor
     {
-        internal EventLoop(IEventLoopGroup parent)
-            : this(parent, DefaultThreadFactory<EventLoop>.Instance, RejectedExecutionHandlers.Reject(), DefaultBreakoutInterval)
+        internal EventLoop(IEventLoopGroup parent, TaskSchedulerType taskSchedulerType)
+            : this(parent, DefaultThreadFactory<EventLoop>.Instance, RejectedExecutionHandlers.Reject(), DefaultBreakoutInterval, taskSchedulerType)
         {
         }
 
-        internal EventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(parent, threadFactory, rejectedHandler, breakoutInterval)
+        internal EventLoop(IEventLoopGroup parent)
+           : this(parent, DefaultThreadFactory<EventLoop>.Instance, RejectedExecutionHandlers.Reject(), DefaultBreakoutInterval, TaskSchedulerType.Default)
+        {
+        }
+
+        internal EventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, rejectedHandler, breakoutInterval, taskSchedulerType)
         {
             Start();
         }

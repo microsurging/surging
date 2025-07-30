@@ -17,20 +17,18 @@ namespace Surging.Core.CPlatform.EventExecutor.Implementation
 
 
         public DefaultEventExecutorProvider()
-        {
-           
+        { 
             if (!AppConfig.ServerOptions.Libuv)
             {
-                _bossEventExecutor = new MultithreadEventLoopGroup(1);
-                _workEventExecutor = new MultithreadEventLoopGroup(AppConfig.ServerOptions.EventLoopCount);
+                _bossEventExecutor = new MultithreadEventLoopGroup(1, TaskSchedulerType.Alone);
+                _workEventExecutor = new MultithreadEventLoopGroup(AppConfig.ServerOptions.EventLoopCount, TaskSchedulerType.Alone);
             }
             else
             {
-               var dispatcher = new DispatcherEventLoopGroup();
+                var dispatcher = new DispatcherEventLoopGroup(TaskSchedulerType.Alone);
                 _bossEventExecutor = dispatcher;
-                _workEventExecutor = new WorkerEventLoopGroup(dispatcher, AppConfig.ServerOptions.EventLoopCount); ;
-            }
-           
+                _workEventExecutor = new WorkerEventLoopGroup(dispatcher, AppConfig.ServerOptions.EventLoopCount, TaskSchedulerType.Alone);
+            } 
         }
 
         public IEventLoopGroup GetBossEventExecutor()

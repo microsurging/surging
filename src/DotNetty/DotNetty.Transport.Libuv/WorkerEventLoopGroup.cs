@@ -62,55 +62,65 @@ namespace DotNetty.Transport.Libuv
         public override IReadOnlyList<WorkerEventLoop> GetItems() => _eventLoops;
 
         public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup)
-            : this(eventLoopGroup, DefaultEventLoopThreadCount)
+            : this(eventLoopGroup, DefaultEventLoopThreadCount, TaskSchedulerType.Default)
+        {
+        }
+
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, TaskSchedulerType taskSchedulerType)
+    : this(eventLoopGroup, DefaultEventLoopThreadCount, taskSchedulerType)
         {
         }
 
         public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads)
-            : this(eventLoopGroup, nThreads, DefaultThreadFactory<WorkerEventLoopGroup>.Instance)
+            : this(eventLoopGroup, nThreads, TaskSchedulerType.Default)
+        {
+        }
+
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, TaskSchedulerType taskSchedulerType)
+            : this(eventLoopGroup, nThreads, DefaultThreadFactory<WorkerEventLoopGroup>.Instance, taskSchedulerType)
         {
         }
 
 
-        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IThreadFactory threadFactory)
-            : this(eventLoopGroup, nThreads, threadFactory, RejectedExecutionHandlers.Reject())
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IThreadFactory threadFactory, TaskSchedulerType taskSchedulerType)
+            : this(eventLoopGroup, nThreads, threadFactory, RejectedExecutionHandlers.Reject(), taskSchedulerType)
         {
         }
 
-        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler)
-            : this(eventLoopGroup, nThreads, threadFactory, rejectedHandler, LoopExecutor.DefaultBreakoutInterval)
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(eventLoopGroup, nThreads, threadFactory, rejectedHandler, LoopExecutor.DefaultBreakoutInterval, taskSchedulerType)
         {
         }
 
-        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : this(eventLoopGroup, nThreads, threadFactory, DefaultEventExecutorChooserFactory<WorkerEventLoop>.Instance, rejectedHandler, breakoutInterval)
-        {
-        }
-
-
-        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IRejectedExecutionHandler rejectedHandler)
-            : this(eventLoopGroup, nThreads, DefaultThreadFactory<WorkerEventLoopGroup>.Instance, rejectedHandler)
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : this(eventLoopGroup, nThreads, threadFactory, DefaultEventExecutorChooserFactory<WorkerEventLoop>.Instance, rejectedHandler, breakoutInterval, taskSchedulerType)
         {
         }
 
 
-        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IEventExecutorChooserFactory<WorkerEventLoop> chooserFactory)
-            : this(eventLoopGroup, nThreads, chooserFactory, RejectedExecutionHandlers.Reject())
-        {
-        }
-
-        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IEventExecutorChooserFactory<WorkerEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler)
-            : this(eventLoopGroup, nThreads, chooserFactory, rejectedHandler, LoopExecutor.DefaultBreakoutInterval)
-        {
-        }
-
-        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IEventExecutorChooserFactory<WorkerEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : this(eventLoopGroup, nThreads, DefaultThreadFactory<WorkerEventLoopGroup>.Instance, chooserFactory, rejectedHandler, breakoutInterval)
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(eventLoopGroup, nThreads, DefaultThreadFactory<WorkerEventLoopGroup>.Instance, rejectedHandler, taskSchedulerType)
         {
         }
 
 
-        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IThreadFactory threadFactory, IEventExecutorChooserFactory<WorkerEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IEventExecutorChooserFactory<WorkerEventLoop> chooserFactory, TaskSchedulerType taskSchedulerType)
+            : this(eventLoopGroup, nThreads, chooserFactory, RejectedExecutionHandlers.Reject(), taskSchedulerType)
+        {
+        }
+
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IEventExecutorChooserFactory<WorkerEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(eventLoopGroup, nThreads, chooserFactory, rejectedHandler, LoopExecutor.DefaultBreakoutInterval, taskSchedulerType)
+        {
+        }
+
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IEventExecutorChooserFactory<WorkerEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : this(eventLoopGroup, nThreads, DefaultThreadFactory<WorkerEventLoopGroup>.Instance, chooserFactory, rejectedHandler, breakoutInterval, taskSchedulerType)
+        {
+        }
+
+
+        public WorkerEventLoopGroup(DispatcherEventLoopGroup eventLoopGroup, int nThreads, IThreadFactory threadFactory, IEventExecutorChooserFactory<WorkerEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
         {
             if (eventLoopGroup is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventLoopGroup); }
             if (chooserFactory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chooserFactory); }
@@ -132,7 +142,7 @@ namespace DotNetty.Transport.Libuv
                 bool success = false;
                 try
                 {
-                    eventLoop = new WorkerEventLoop(this, threadFactory, rejectedHandler, breakoutInterval);
+                    eventLoop = new WorkerEventLoop(this, threadFactory, rejectedHandler, breakoutInterval, taskSchedulerType);
                     success = eventLoop.ConnectTask.Wait(StartTimeout);
                     if (!success)
                     {
@@ -217,7 +227,7 @@ namespace DotNetty.Transport.Libuv
                     if (executor.WaitTermination(timeLeft.ToTimeSpan())) { break; }
                 }
             }
-        LoopEnd:
+            LoopEnd:
             return IsTerminated;
         }
     }

@@ -35,110 +35,115 @@ namespace DotNetty.Common.Concurrency
         }
 
         public DefaultEventExecutor(int maxPendingTasks)
-            : this(RejectedExecutionHandlers.Reject(), maxPendingTasks)
+            : this(RejectedExecutionHandlers.Reject(), maxPendingTasks, TaskSchedulerType.Default)
+        {
+        }
+
+        public DefaultEventExecutor(TaskSchedulerType taskSchedulerType)
+          : this(RejectedExecutionHandlers.Reject(), DefaultMaxPendingExecutorTasks, taskSchedulerType)
         {
         }
 
         public DefaultEventExecutor(IRejectedExecutionHandler rejectedHandler)
-            : this(rejectedHandler, DefaultMaxPendingExecutorTasks)
+            : this(rejectedHandler, DefaultMaxPendingExecutorTasks, TaskSchedulerType.Default)
         {
         }
 
         public DefaultEventExecutor(IEventExecutorTaskQueueFactory queueFactory)
-            : this(RejectedExecutionHandlers.Reject(), queueFactory)
+            : this(RejectedExecutionHandlers.Reject(), queueFactory, TaskSchedulerType.Default)
         {
         }
 
-        public DefaultEventExecutor(IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : this(null, DefaultThreadFactory<DefaultEventExecutor>.Instance, rejectedHandler, maxPendingTasks)
+        public DefaultEventExecutor(IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(null, DefaultThreadFactory<DefaultEventExecutor>.Instance, rejectedHandler, maxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IRejectedExecutionHandler rejectedHandler, IEventExecutorTaskQueueFactory queueFactory)
-            : this(null, DefaultThreadFactory<DefaultEventExecutor>.Instance, rejectedHandler, queueFactory)
+        public DefaultEventExecutor(IRejectedExecutionHandler rejectedHandler, IEventExecutorTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(null, DefaultThreadFactory<DefaultEventExecutor>.Instance, rejectedHandler, queueFactory, taskSchedulerType)
         {
         }
 
 
         public DefaultEventExecutor(IThreadFactory threadFactory)
-            : this(threadFactory, DefaultMaxPendingExecutorTasks)
+            : this(threadFactory, DefaultMaxPendingExecutorTasks, TaskSchedulerType.Default)
         {
         }
 
-        public DefaultEventExecutor(IThreadFactory threadFactory, int maxPendingTasks)
-            : this(threadFactory, RejectedExecutionHandlers.Reject(), maxPendingTasks)
+        public DefaultEventExecutor(IThreadFactory threadFactory, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(threadFactory, RejectedExecutionHandlers.Reject(), maxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IThreadFactory threadFactory, IEventExecutorTaskQueueFactory queueFactory)
-            : this(threadFactory, RejectedExecutionHandlers.Reject(), queueFactory)
+        public DefaultEventExecutor(IThreadFactory threadFactory, IEventExecutorTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(threadFactory, RejectedExecutionHandlers.Reject(), queueFactory, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler)
-            : this(threadFactory, rejectedHandler, DefaultMaxPendingExecutorTasks)
+        public DefaultEventExecutor(IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(threadFactory, rejectedHandler, DefaultMaxPendingExecutorTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : this(null, threadFactory, rejectedHandler, maxPendingTasks)
+        public DefaultEventExecutor(IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(null, threadFactory, rejectedHandler, maxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, IEventExecutorTaskQueueFactory queueFactory)
-            : this(null, threadFactory, rejectedHandler, queueFactory)
+        public DefaultEventExecutor(IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, IEventExecutorTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(null, threadFactory, rejectedHandler, queueFactory, taskSchedulerType)
         {
         }
 
 
         public DefaultEventExecutor(IEventExecutorGroup parent)
-            : this(parent, DefaultMaxPendingExecutorTasks)
+            : this(parent, DefaultMaxPendingExecutorTasks, TaskSchedulerType.Default)
         {
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, int maxPendingTasks)
-            : this(parent, RejectedExecutionHandlers.Reject(), maxPendingTasks)
+        public DefaultEventExecutor(IEventExecutorGroup parent, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(parent, RejectedExecutionHandlers.Reject(), maxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, IEventExecutorTaskQueueFactory queueFactory)
-            : this(parent, RejectedExecutionHandlers.Reject(), queueFactory)
+        public DefaultEventExecutor(IEventExecutorGroup parent, IEventExecutorTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(parent, RejectedExecutionHandlers.Reject(), queueFactory, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, IRejectedExecutionHandler rejectedHandler)
-            : this(parent, rejectedHandler, queueFactory: null)
+        public DefaultEventExecutor(IEventExecutorGroup parent, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(parent, rejectedHandler, queueFactory: null, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : this(parent, DefaultThreadFactory<DefaultEventExecutor>.Instance, rejectedHandler, maxPendingTasks)
+        public DefaultEventExecutor(IEventExecutorGroup parent, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(parent, DefaultThreadFactory<DefaultEventExecutor>.Instance, rejectedHandler, maxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, IRejectedExecutionHandler rejectedHandler, IEventExecutorTaskQueueFactory queueFactory)
-            : this(parent, DefaultThreadFactory<DefaultEventExecutor>.Instance, rejectedHandler, queueFactory)
+        public DefaultEventExecutor(IEventExecutorGroup parent, IRejectedExecutionHandler rejectedHandler, IEventExecutorTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(parent, DefaultThreadFactory<DefaultEventExecutor>.Instance, rejectedHandler, queueFactory, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, int maxPendingTasks)
-            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), maxPendingTasks)
+        public DefaultEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), maxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, IEventExecutorTaskQueueFactory queueFactory)
-            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), queueFactory)
+        public DefaultEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, IEventExecutorTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), queueFactory, taskSchedulerType)
         {
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : base(parent, threadFactory, true, NewBlockingTaskQueue(maxPendingTasks), rejectedHandler)
+        public DefaultEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks,TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, true, NewBlockingTaskQueue(maxPendingTasks), rejectedHandler, taskSchedulerType)
         {
             Start();
         }
 
-        public DefaultEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, IEventExecutorTaskQueueFactory queueFactory)
-            : base(parent, threadFactory, true, NewBlockingTaskQueue(queueFactory), rejectedHandler)
+        public DefaultEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, IEventExecutorTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, true, NewBlockingTaskQueue(queueFactory), rejectedHandler, taskSchedulerType)
         {
             Start();
         }

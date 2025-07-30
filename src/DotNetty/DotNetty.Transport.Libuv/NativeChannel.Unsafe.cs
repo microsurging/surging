@@ -136,7 +136,7 @@ namespace DotNetty.Transport.Libuv
                 }
                 finally
                 {
-                    request.Dispose();
+                    request.Dispose(); 
                     ch._connectPromise = null;
                     if (!success)
                     {

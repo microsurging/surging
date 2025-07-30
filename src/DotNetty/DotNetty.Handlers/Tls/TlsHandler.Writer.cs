@@ -181,8 +181,8 @@ namespace DotNetty.Handlers.Tls
                     finally
                     {
                         buf.Release();
-                        buf = null;
-                        promise = null;
+                        buf = null; 
+                        promise = null; 
                         _lastContextWritePromise = null;
                     }
                 }

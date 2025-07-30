@@ -36,66 +36,71 @@ namespace DotNetty.Transport.Channels
         }
 
         public DefaultEventLoop(IEventLoopGroup parent)
-            : this(parent, DefaultMaxPendingTasks)
+            : this(parent, DefaultMaxPendingTasks, TaskSchedulerType.Default)
         {
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, int maxPendingTasks)
-            : this(parent, RejectedExecutionHandlers.Reject(), maxPendingTasks)
+        public DefaultEventLoop(IEventLoopGroup parent, TaskSchedulerType taskSchedulerType)
+          : this(parent, DefaultMaxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, IEventLoopTaskQueueFactory queueFactory)
-            : this(parent, RejectedExecutionHandlers.Reject(), queueFactory)
+        public DefaultEventLoop(IEventLoopGroup parent, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(parent, RejectedExecutionHandlers.Reject(), maxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler)
-            : this(parent, rejectedHandler, queueFactory: null)
+        public DefaultEventLoop(IEventLoopGroup parent, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(parent, RejectedExecutionHandlers.Reject(), queueFactory, taskSchedulerType)
         {
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : this(parent, DefaultThreadFactory<DefaultEventLoop>.Instance, rejectedHandler, maxPendingTasks)
+        public DefaultEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(parent, rejectedHandler, queueFactory: null, taskSchedulerType)
         {
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory)
-            : this(parent, DefaultThreadFactory<DefaultEventLoop>.Instance, rejectedHandler, queueFactory)
+        public DefaultEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(parent, DefaultThreadFactory<DefaultEventLoop>.Instance, rejectedHandler, maxPendingTasks, taskSchedulerType)
         {
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, int maxPendingTasks)
-            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), maxPendingTasks)
+        public DefaultEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(parent, DefaultThreadFactory<DefaultEventLoop>.Instance, rejectedHandler, queueFactory, taskSchedulerType)
         {
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IEventLoopTaskQueueFactory queueFactory)
-            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), queueFactory)
+        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), maxPendingTasks, taskSchedulerType)
+        {
+        }
+
+        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), queueFactory, taskSchedulerType)
         {
         }
 
 #if DEBUG
-        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : base(parent, threadFactory, true, NewBlockingTaskQueue(maxPendingTasks), NewBlockingTaskQueue(maxPendingTasks), rejectedHandler)
+        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, true, NewBlockingTaskQueue(maxPendingTasks), NewBlockingTaskQueue(maxPendingTasks), rejectedHandler,taskSchedulerType)
         {
             Start();
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory)
-            : base(parent, threadFactory, true, NewBlockingTaskQueue(queueFactory), NewBlockingTaskQueue(queueFactory), rejectedHandler)
+        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, true, NewBlockingTaskQueue(queueFactory), NewBlockingTaskQueue(queueFactory), rejectedHandler,taskSchedulerType)
         {
             Start();
         }
 #else
-        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : base(parent, threadFactory, true, NewBlockingTaskQueue(maxPendingTasks), rejectedHandler)
+        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, true, NewBlockingTaskQueue(maxPendingTasks), rejectedHandler, taskSchedulerType)
         {
             Start();
         }
 
-        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory)
-            : base(parent, threadFactory, true, NewBlockingTaskQueue(queueFactory), rejectedHandler)
+        public DefaultEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, true, NewBlockingTaskQueue(queueFactory), rejectedHandler, taskSchedulerType)
         {
             Start();
         }

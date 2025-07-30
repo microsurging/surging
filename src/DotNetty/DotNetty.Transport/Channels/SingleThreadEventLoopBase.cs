@@ -40,20 +40,20 @@ namespace DotNetty.Transport.Channels
         protected readonly IQueue<IRunnable> _tailTasks;
 #endif
 
-        protected SingleThreadEventLoopBase(IEventLoopGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp)
-            : this(parent, threadFactory, addTaskWakesUp, DefaultMaxPendingTasks, RejectedExecutionHandlers.Reject())
+        protected SingleThreadEventLoopBase(IEventLoopGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, addTaskWakesUp, DefaultMaxPendingTasks, RejectedExecutionHandlers.Reject(), taskSchedulerType)
         {
         }
 
         protected SingleThreadEventLoopBase(IEventLoopGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp,
-            IRejectedExecutionHandler rejectedHandler)
-            : this(parent, threadFactory, addTaskWakesUp, DefaultMaxPendingTasks, rejectedHandler)
+            IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, addTaskWakesUp, DefaultMaxPendingTasks, rejectedHandler, taskSchedulerType)
         {
         }
 
         protected SingleThreadEventLoopBase(IEventLoopGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp,
-            int maxPendingTasks, IRejectedExecutionHandler rejectedHandler)
-            : base(parent, threadFactory, addTaskWakesUp, maxPendingTasks, rejectedHandler)
+            int maxPendingTasks, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, addTaskWakesUp, maxPendingTasks, rejectedHandler, taskSchedulerType)
         {
 #if DEBUG
             _tailTasks = NewTaskQueue(maxPendingTasks);
@@ -62,16 +62,16 @@ namespace DotNetty.Transport.Channels
 
 #if DEBUG
         protected SingleThreadEventLoopBase(IEventLoopGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp,
-            IQueue<IRunnable> taskQueue, IQueue<IRunnable> tailTaskQueue, IRejectedExecutionHandler rejectedHandler)
-            : base(parent, threadFactory, addTaskWakesUp, taskQueue, rejectedHandler)
+            IQueue<IRunnable> taskQueue, IQueue<IRunnable> tailTaskQueue, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, addTaskWakesUp, taskQueue, rejectedHandler, taskSchedulerType)
         {
             if (tailTaskQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tailTaskQueue); }
             _tailTasks = tailTaskQueue;
         }
 #else
         protected SingleThreadEventLoopBase(IEventLoopGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp,
-            IQueue<IRunnable> taskQueue, IRejectedExecutionHandler rejectedHandler)
-            : base(parent, threadFactory, addTaskWakesUp, taskQueue, rejectedHandler)
+            IQueue<IRunnable> taskQueue, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, addTaskWakesUp, taskQueue, rejectedHandler, taskSchedulerType)
         {
         }
 #endif

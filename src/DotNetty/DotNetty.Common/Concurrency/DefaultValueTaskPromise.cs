@@ -140,7 +140,7 @@ namespace DotNetty.Common.Concurrency
             return !IsCompleted;
         }
 
-        public override string ToString() => "TaskCompletionSource[status: " + ValueTask.AsTask().Status.ToString() + "]";
+        public override string ToString() => "TaskCompletionSource[status: " + _tcs.GetStatus(_tcs.Version).ToString() + "]";
 
         public IPromise Unvoid() => this;
 

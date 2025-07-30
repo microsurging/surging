@@ -39,9 +39,13 @@ namespace DotNetty.Transport.Libuv
         private readonly DispatcherEventLoop _dispatcherEventLoop;
         private readonly DispatcherEventLoop[] _eventLoops;
 
-        public DispatcherEventLoopGroup()
+        public DispatcherEventLoopGroup():this(TaskSchedulerType.Default)
+        { 
+        }
+
+        public DispatcherEventLoopGroup(TaskSchedulerType taskSchedulerType)
         {
-            _dispatcherEventLoop = new DispatcherEventLoop(this);
+            _dispatcherEventLoop = new DispatcherEventLoop(this, taskSchedulerType);
             _eventLoops = new[] { _dispatcherEventLoop };
         }
 

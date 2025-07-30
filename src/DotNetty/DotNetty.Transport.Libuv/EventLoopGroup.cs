@@ -56,30 +56,42 @@ namespace DotNetty.Transport.Libuv
         {
         }
 
-        public EventLoopGroup(int nThreads, TimeSpan breakoutInterval)
-            : this(nThreads, DefaultThreadFactory<EventLoop>.Instance, RejectedExecutionHandlers.Reject(), breakoutInterval)
+        public EventLoopGroup(TaskSchedulerType taskSchedulerType)
+          : this(0, taskSchedulerType)
+        {
+
+        }
+
+        public EventLoopGroup(int nThreads, TaskSchedulerType taskSchedulerType)
+            : base(0u >= (uint)nThreads ? DefaultEventLoopCount : nThreads,
+                  EventLoopChooserFactory<EventLoop>.Instance, group => new EventLoop(group, taskSchedulerType))
         {
         }
 
-        public EventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler)
-            : this(nThreads, rejectedHandler, LoopExecutor.DefaultBreakoutInterval)
+        public EventLoopGroup(int nThreads, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : this(nThreads, DefaultThreadFactory<EventLoop>.Instance, RejectedExecutionHandlers.Reject(), breakoutInterval, taskSchedulerType)
         {
         }
 
-        public EventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : this(nThreads, DefaultThreadFactory<EventLoop>.Instance, rejectedHandler, breakoutInterval)
+        public EventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(nThreads, rejectedHandler, LoopExecutor.DefaultBreakoutInterval, taskSchedulerType)
         {
         }
 
-        public EventLoopGroup(int nThreads, IThreadFactory threadFactory, TimeSpan breakoutInterval)
-            : this(nThreads, threadFactory, RejectedExecutionHandlers.Reject(), breakoutInterval)
+        public EventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : this(nThreads, DefaultThreadFactory<EventLoop>.Instance, rejectedHandler, breakoutInterval, taskSchedulerType)
         {
         }
 
-        public EventLoopGroup(int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
+        public EventLoopGroup(int nThreads, IThreadFactory threadFactory, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : this(nThreads, threadFactory, RejectedExecutionHandlers.Reject(), breakoutInterval, taskSchedulerType)
+        {
+        }
+
+        public EventLoopGroup(int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
             : base(0u >= (uint)nThreads ? DefaultEventLoopCount : nThreads,
                   EventLoopChooserFactory<EventLoop>.Instance,
-                  group => new EventLoop(group, threadFactory, rejectedHandler, breakoutInterval))
+                  group => new EventLoop(group, threadFactory, rejectedHandler, breakoutInterval, taskSchedulerType))
         {
         }
 

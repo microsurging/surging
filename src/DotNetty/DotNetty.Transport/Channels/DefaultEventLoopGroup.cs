@@ -49,91 +49,101 @@ namespace DotNetty.Transport.Channels
         {
         }
 
+        public DefaultEventLoopGroup(TaskSchedulerType taskSchedulerType)
+     : this(0, taskSchedulerType)
+        {
+        }
+
+        public DefaultEventLoopGroup(int nThreads, TaskSchedulerType taskSchedulerType)
+         : base(nThreads, group => new DefaultEventLoop(group,  taskSchedulerType))
+        {
+        }
+
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
         public DefaultEventLoopGroup(IRejectedExecutionHandler rejectedHandler)
-            : this(0, rejectedHandler)
+            : this(0, rejectedHandler, TaskSchedulerType.Default)
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
         public DefaultEventLoopGroup(IEventLoopTaskQueueFactory queueFactory)
-            : this(0, queueFactory)
+            : this(0, queueFactory, TaskSchedulerType.Default)
         {
         }
 
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler)
-            : base(nThreads, group => new DefaultEventLoop(group, rejectedHandler))
+        public DefaultEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, rejectedHandler, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, int maxPendingTasks)
-            : base(nThreads, group => new DefaultEventLoop(group, maxPendingTasks))
+        public DefaultEventLoopGroup(int nThreads, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, maxPendingTasks, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IEventLoopTaskQueueFactory queueFactory)
-            : base(nThreads, group => new DefaultEventLoop(group, queueFactory))
+        public DefaultEventLoopGroup(int nThreads, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, queueFactory, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : base(nThreads, group => new DefaultEventLoop(group, rejectedHandler, maxPendingTasks))
+        public DefaultEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, rejectedHandler, maxPendingTasks, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory)
-            : base(nThreads, group => new DefaultEventLoop(group, rejectedHandler, queueFactory))
+        public DefaultEventLoopGroup(int nThreads, IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, rejectedHandler, queueFactory, taskSchedulerType))
         {
         }
 
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
         public DefaultEventLoopGroup(IThreadFactory threadFactory)
-            : this(0, threadFactory)
+            : this(0, threadFactory, TaskSchedulerType.Default)
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory)
-            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, queueFactory: null))
+        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, queueFactory: null, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler)
-            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, queueFactory: null))
+        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, queueFactory: null, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, int maxPendingTasks)
-            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, maxPendingTasks))
+        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, maxPendingTasks, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, IEventLoopTaskQueueFactory queueFactory)
-            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, queueFactory))
-        {
-        }
-
-        /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory,
-            IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, maxPendingTasks))
+        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, queueFactory, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
         public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory,
-            IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory)
-            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, queueFactory))
+            IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, maxPendingTasks, taskSchedulerType))
+        {
+        }
+
+        /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
+        public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory,
+            IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, queueFactory, taskSchedulerType))
         {
         }
 
@@ -151,49 +161,49 @@ namespace DotNetty.Transport.Channels
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler)
-            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, rejectedHandler, queueFactory: null))
+        public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, rejectedHandler, queueFactory: null, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory, int maxPendingTasks)
-            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, maxPendingTasks))
+        public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, maxPendingTasks, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory, IEventLoopTaskQueueFactory queueFactory)
-            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, queueFactory))
-        {
-        }
-
-        /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
-        public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory,
-            IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, rejectedHandler, maxPendingTasks))
+        public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, queueFactory, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
         public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory,
-            IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory)
-            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, rejectedHandler, queueFactory))
+            IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, rejectedHandler, maxPendingTasks, taskSchedulerType))
+        {
+        }
+
+        /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
+        public DefaultEventLoopGroup(int nThreads, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory,
+            IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, rejectedHandler, queueFactory, taskSchedulerType))
         {
         }
 
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
         public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory,
-            IRejectedExecutionHandler rejectedHandler, int maxPendingTasks)
-            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, maxPendingTasks))
+            IRejectedExecutionHandler rejectedHandler, int maxPendingTasks, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, maxPendingTasks, taskSchedulerType))
         {
         }
 
         /// <summary>Creates a new instance of <see cref="DefaultEventLoopGroup"/>.</summary>
         public DefaultEventLoopGroup(int nThreads, IThreadFactory threadFactory, IEventExecutorChooserFactory<DefaultEventLoop> chooserFactory,
-            IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory)
-            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, queueFactory))
+            IRejectedExecutionHandler rejectedHandler, IEventLoopTaskQueueFactory queueFactory, TaskSchedulerType taskSchedulerType)
+            : base(nThreads, chooserFactory, group => new DefaultEventLoop(group, threadFactory, rejectedHandler, queueFactory, taskSchedulerType))
         {
         }
     }

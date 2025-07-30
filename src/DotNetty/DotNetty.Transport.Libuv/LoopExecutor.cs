@@ -69,8 +69,8 @@ namespace DotNetty.Transport.Libuv
 
         #region @@ Constructor @@
 
-        protected LoopExecutor(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(parent, threadFactory, false, int.MaxValue, rejectedHandler)
+        protected LoopExecutor(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, false, int.MaxValue, rejectedHandler, taskSchedulerType)
         {
             _writeRequestPool = new ThreadLocalPool<WriteRequest>(s_valueFactory);
 

@@ -47,42 +47,47 @@ namespace DotNetty.Transport.Channels
         private ManualResetEventSlim _emptyEvent;
 
         public SingleThreadEventLoop(IEventLoopGroup parent)
-            : this(parent, DefaultBreakoutInterval)
+            : this(parent, DefaultBreakoutInterval, TaskSchedulerType.Default)
         {
         }
 
-        public SingleThreadEventLoop(IEventLoopGroup parent, TimeSpan breakoutInterval)
-            : this(parent, RejectedExecutionHandlers.Reject(), breakoutInterval)
+        public SingleThreadEventLoop(IEventLoopGroup parent, TaskSchedulerType taskSchedulerType)
+         : this(parent, DefaultBreakoutInterval, taskSchedulerType)
         {
         }
 
-        public SingleThreadEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler)
-            : this(parent, rejectedHandler, DefaultBreakoutInterval)
+        public SingleThreadEventLoop(IEventLoopGroup parent, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : this(parent, RejectedExecutionHandlers.Reject(), breakoutInterval,taskSchedulerType)
         {
         }
 
-        public SingleThreadEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : this(parent, DefaultThreadFactory<SingleThreadEventLoop>.Instance, rejectedHandler, breakoutInterval)
+        public SingleThreadEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(parent, rejectedHandler, DefaultBreakoutInterval, taskSchedulerType)
         {
         }
 
-        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory)
-            : this(parent, threadFactory, DefaultBreakoutInterval)
+        public SingleThreadEventLoop(IEventLoopGroup parent, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : this(parent, DefaultThreadFactory<SingleThreadEventLoop>.Instance, rejectedHandler, breakoutInterval, taskSchedulerType)
         {
         }
 
-        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, TimeSpan breakoutInterval)
-            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), breakoutInterval)
+        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, DefaultBreakoutInterval, taskSchedulerType)
         {
         }
 
-        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler)
-            : this(parent, threadFactory, rejectedHandler, DefaultBreakoutInterval)
+        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, RejectedExecutionHandlers.Reject(), breakoutInterval, taskSchedulerType)
         {
         }
 
-        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval)
-            : base(parent, threadFactory, false, int.MaxValue, rejectedHandler)
+        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(parent, threadFactory, rejectedHandler, DefaultBreakoutInterval, taskSchedulerType)
+        {
+        }
+
+        public SingleThreadEventLoop(IEventLoopGroup parent, IThreadFactory threadFactory, IRejectedExecutionHandler rejectedHandler, TimeSpan breakoutInterval, TaskSchedulerType taskSchedulerType)
+            : base(parent, threadFactory, false, int.MaxValue, rejectedHandler, taskSchedulerType)
         {
             _emptyEvent = new ManualResetEventSlim(false,1);
             _breakoutNanosInterval = PreciseTime.ToDelayNanos(breakoutInterval);

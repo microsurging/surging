@@ -151,20 +151,29 @@ namespace DotNetty.Common.Concurrency
             }
         }
 
-        private  async void OperationComplete(Task future)
+        private   async void OperationComplete(Task future)
         {
-            await future;
-            Debug.Assert(_executor.InEventLoop);
-            ++_doneCount;
-            if (future.IsFailure() && _cause is null)
+            try
             {
-                _cause = future.Exception.InnerException;
+                await future;
+                Debug.Assert(_executor.InEventLoop);
+                ++_doneCount;
             }
-            if (0u >= (uint)(_doneCount - _expectedCount) && _aggregatePromise is object)
+            catch (Exception ex)
             {
-                _ = TryPromise();
+                if (_cause is null)
+                {
+                    _cause = ex.InnerException;
+                }
             }
-            future.Dispose();
+            finally
+            {
+                if (0u >= (uint)(_doneCount - _expectedCount) && _aggregatePromise is object)
+                {
+                    _ = TryPromise();
+                }
+                future.Dispose();
+            }
         }
 
         sealed class OperationCompleteTask : IRunnable

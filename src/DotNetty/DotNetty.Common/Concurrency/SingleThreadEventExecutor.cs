@@ -115,7 +115,7 @@ namespace DotNetty.Common.Concurrency
         /// <param name="addTaskWakesUp"><c>true</c> if and only if invocation of <see cref="AddTask(IRunnable)"/> will wake up the executor thread.</param>
         /// <param name="maxPendingTasks">the maximum number of pending tasks before new tasks will be rejected.</param>
         public SingleThreadEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp, int maxPendingTasks)
-            : this(parent, threadFactory, addTaskWakesUp, maxPendingTasks, RejectedExecutionHandlers.Reject())
+            : this(parent, threadFactory, addTaskWakesUp, maxPendingTasks, RejectedExecutionHandlers.Reject(), TaskSchedulerType.Default)
         {
         }
 
@@ -125,7 +125,7 @@ namespace DotNetty.Common.Concurrency
         /// <param name="addTaskWakesUp"><c>true</c> if and only if invocation of <see cref="AddTask(IRunnable)"/> will wake up the executor thread.</param>
         /// <param name="rejectedHandler">the <see cref="IRejectedExecutionHandler"/> to use.</param>
         public SingleThreadEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp, IRejectedExecutionHandler rejectedHandler)
-            : this(parent, threadFactory, addTaskWakesUp, DefaultMaxPendingExecutorTasks, rejectedHandler)
+            : this(parent, threadFactory, addTaskWakesUp, DefaultMaxPendingExecutorTasks, rejectedHandler, TaskSchedulerType.Default)
         {
         }
 
@@ -137,8 +137,8 @@ namespace DotNetty.Common.Concurrency
         /// <param name="maxPendingTasks">the maximum number of pending tasks before new tasks will be rejected.</param>
         /// <param name="rejectedHandler">the <see cref="IRejectedExecutionHandler"/> to use.</param>
         protected SingleThreadEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp,
-            int maxPendingTasks, IRejectedExecutionHandler rejectedHandler)
-            : this(parent, addTaskWakesUp, rejectedHandler)
+            int maxPendingTasks, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(parent, addTaskWakesUp, rejectedHandler, taskSchedulerType)
         {
             if (threadFactory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.threadFactory); }
 
@@ -156,8 +156,8 @@ namespace DotNetty.Common.Concurrency
         /// <param name="taskQueue">The pending task queue.</param>
         /// <param name="rejectedHandler">the <see cref="IRejectedExecutionHandler"/> to use.</param>
         protected SingleThreadEventExecutor(IEventExecutorGroup parent, IThreadFactory threadFactory, bool addTaskWakesUp,
-            IQueue<IRunnable> taskQueue, IRejectedExecutionHandler rejectedHandler)
-            : this(parent, addTaskWakesUp, rejectedHandler)
+            IQueue<IRunnable> taskQueue, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
+            : this(parent, addTaskWakesUp, rejectedHandler, taskSchedulerType)
         {
             if (threadFactory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.threadFactory); }
             if (taskQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.taskQueue); }
@@ -169,7 +169,7 @@ namespace DotNetty.Common.Concurrency
             _thread = NewThread(threadFactory);
         }
 
-        private SingleThreadEventExecutor(IEventExecutorGroup parent, bool addTaskWakesUp, IRejectedExecutionHandler rejectedHandler)
+        private SingleThreadEventExecutor(IEventExecutorGroup parent, bool addTaskWakesUp, IRejectedExecutionHandler rejectedHandler, TaskSchedulerType taskSchedulerType)
             : base(parent)
         {
             if (rejectedHandler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.rejectedHandler); }
@@ -185,9 +185,11 @@ namespace DotNetty.Common.Concurrency
             _shutdownHooks = new HashSet<Action>();
             _terminationCompletionSource = NewPromise();
             _threadLock = new CountdownEvent(1);
-            // _taskScheduler = new ExecutorTaskScheduler(this);
+            if(taskSchedulerType == TaskSchedulerType.Default)
+                 _taskScheduler = new ExecutorTaskScheduler(this);
+            else
             //High CPU consumption tasks, opening new threads to run long-running tasks, avoiding exhaustion of thread pool resources
-            _taskScheduler = new AloneExecutorTaskScheduler(this, 1);
+                 _taskScheduler = new AloneExecutorTaskScheduler(this, 1);
         }
 
         #endregion
@@ -272,7 +274,7 @@ namespace DotNetty.Common.Concurrency
         {
             SetCurrentExecutor(this); 
             //high CPU consumption tasks, running RunAllTasks in a dead loop, set TaskCreationOptions.LongRunning to avoid running out of thread pool resources. ‌‌
-            _ = Task.Factory.StartNew( _loopCoreAciton,CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler);
+            _ = Task.Factory.StartNew( _loopCoreAciton,CancellationToken.None, TaskCreationOptions.RunContinuationsAsynchronously, _taskScheduler);
             //Loop processing is too fast and generates a large number of loopCoreAciton task schedulers.
             //Using ManualResetEventSlim to process it is too late to wait, Using threadLock, LoopCore task schedulers will be released after execution
         }
