@@ -38,7 +38,8 @@ namespace Surging.Services.Server
                     builder.AddMicroService(option =>
                     {
                         option.AddServiceRuntime()
-                        .AddRelateService()
+                       // .AddRelateService() // no unload Proxy Generator
+                        .AddRelateService2()//load and unload Proxy Generator
                         .AddConfigurationWatch()
                         //option.UseZooKeeperManager(new ConfigInfo("127.0.0.1:2181")); 
                         .AddServiceEngine(typeof(SurgingServiceEngine));

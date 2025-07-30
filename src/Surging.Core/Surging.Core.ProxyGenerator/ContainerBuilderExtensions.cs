@@ -35,6 +35,21 @@ namespace Surging.Core.ProxyGenerator
             return builder;
         }
 
+        public static IServiceBuilder AddClientProxy2(this IServiceBuilder builder)
+        {
+            var services = builder.Services; 
+            services.RegisterType<ServiceProxyProvider>().As<IServiceProxyProvider>().SingleInstance();
+            builder.Services.Register(provider => new ServiceProxyFactory(
+                 provider.Resolve<IRemoteInvokeService>(),
+                 provider.Resolve<ITypeConvertibleService>(),
+                 provider.Resolve<IServiceProvider>(),
+                provider.Resolve<IServiceRouteProvider>(),
+                 builder.GetInterfaceService(),
+                 builder.GetDataContractName()
+                 )).As<IServiceProxyFactory>().SingleInstance();
+            return builder;
+        }
+
         public static IServiceBuilder AddClientIntercepted(this IServiceBuilder builder,params Type[] interceptorServiceTypes )
         {
             var services = builder.Services; 
@@ -72,6 +87,14 @@ namespace Surging.Core.ProxyGenerator
                 .AddClientProxy();
         }
 
+        public static IServiceBuilder AddClient2(this ContainerBuilder services)
+        {
+            return services
+                .AddCoreService()
+                .AddClientRuntime()
+                .AddClientProxy2();
+        }
+
         /// <summary>
         /// 添加关联服务
         /// </summary>
@@ -80,6 +103,11 @@ namespace Surging.Core.ProxyGenerator
         public static IServiceBuilder AddRelateService(this IServiceBuilder builder)
         {
             return builder.AddRelateServiceRuntime().AddClientProxy();
+        }
+
+        public static IServiceBuilder AddRelateService2(this IServiceBuilder builder)
+        {
+            return builder.AddRelateServiceRuntime().AddClientProxy2();
         }
 
         /// <summary>
@@ -98,6 +126,19 @@ namespace Surging.Core.ProxyGenerator
                 .RegisterInstanceByConstraint()
                 .AddClientRuntime()
                 .AddClientProxy();
+        }
+
+        public static IServiceBuilder AddClient2(this IServiceBuilder builder)
+        {
+            return builder
+                .RegisterServices()
+                .RegisterRepositories()
+                .RegisterServiceBus()
+                .RegisterModules()
+                .RegisterProtocols()
+                .RegisterInstanceByConstraint()
+                .AddClientRuntime()
+                .AddClientProxy2();
         }
     }
 }

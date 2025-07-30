@@ -10,6 +10,14 @@ using System.Collections.Generic;
 using Surging.Core.CPlatform.DependencyResolution;
 using System.Runtime.CompilerServices;
 using Surging.Core.CPlatform.Routing;
+using System.Threading;
+using Surging.Core.CPlatform.Utilities;
+using System.Runtime.Loader;
+using Surging.Core.CPlatform.Module;
+using System.IO;
+using Surging.Core.CPlatform.Ids;
+using Microsoft.Extensions.Logging;
+using Surging.Core.CPlatform.Ids.Implementation;
 
 namespace Surging.Core.ProxyGenerator.Implementation
 {
@@ -103,12 +111,48 @@ namespace Surging.Core.ProxyGenerator.Implementation
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RegisterProxType(string[] namespaces,params Type[] types)
         {
-            var proxyGenerater = _serviceProvider.GetService<IServiceProxyGenerater>();
-            var serviceTypes = proxyGenerater.GenerateProxys(types, namespaces).ToArray();
-            _serviceTypes= _serviceTypes.Except(serviceTypes).Concat(serviceTypes).ToArray();
-            proxyGenerater.Dispose();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            if (!ServiceLocator.IsRegistered<IServiceProxyGenerater>())
+            {
+                var loading = LoadAssembly(Path.Combine(AppContext.BaseDirectory, "Surging.Core.ProxyGenerator.Extensions.dll"));
+                InvokeFunc(loading.assembly, types, namespaces);
+                loading.loadContext.Unload();
+            }
+            else
+            {
+                var proxyGenerater = _serviceProvider.GetService<IServiceProxyGenerater>();
+                var serviceTypes = proxyGenerater.GenerateProxys(types, namespaces).ToArray();
+                _serviceTypes = _serviceTypes.Except(serviceTypes).Concat(serviceTypes).ToArray();
+                proxyGenerater.Dispose();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+
+        }
+
+        public  void InvokeFunc(Assembly assembly, Type[] types,string[] namespaces)
+        {
+            var type = assembly.GetType("Surging.Core.ProxyGenerator.Extensions.ServiceProxyGenerater");
+            DefaultServiceIdGenerator serviceIdGenerator = _serviceProvider.GetService<IServiceIdGenerator>() as DefaultServiceIdGenerator;
+            var logger = _serviceProvider.GetService<ILogger<ServiceProxyFactory>>();  
+     
+            var obj = assembly.CreateInstance("Surging.Core.ProxyGenerator.Extensions.ServiceProxyGenerater");
+
+            var methodGenerateProxys = type.GetMethod("GenerateProxys");
+            var serviceTypes = methodGenerateProxys.Invoke(obj, new object[] { types, namespaces });
+
+            _serviceTypes = _serviceTypes.Except(serviceTypes as Type[]).Concat(serviceTypes  as Type[]).ToArray();
+
+            var methodDispose = type.GetMethod("Dispose");
+            methodDispose.Invoke(obj, null);
+            
+
+        }
+
+        private  (AssemblyLoadContext loadContext, Assembly assembly) LoadAssembly(string path)
+        {
+            var loadContext = new CustomAssemblyLoadContext(Path.GetDirectoryName(path));
+            var assembly = loadContext.LoadFromAssemblyPath(path);
+            return (loadContext, assembly);
         }
 
         #endregion Implementation of IServiceProxyFactory
