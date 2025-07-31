@@ -18,21 +18,31 @@ namespace Surging.Core.EventBusRabbitMQ
 {
     public class EventBusRabbitMQModule : EnginePartModule
     {
+        private ISubscriptionAdapt _subscriptionAdapt;
+        private IEventBus _eventBus;
         public override void Initialize(AppModuleContext context)
         {
             var serviceProvider = context.ServiceProvoider;
             base.Initialize(context);
             new ServiceRouteWatch(serviceProvider.GetInstances<CPlatformContainer>(), () =>
             {
-                var subscriptionAdapt = serviceProvider.GetInstances<ISubscriptionAdapt>();
-                var eventBus = serviceProvider.GetInstances<IEventBus>();
-                eventBus.OnShutdown += (sender, args) =>
-                 {
-                     subscriptionAdapt.Unsubscribe();
-                 };
-                eventBus.Dispose();
+                if (_subscriptionAdapt == null)
+                    _subscriptionAdapt = serviceProvider.GetInstances<ISubscriptionAdapt>();
+                if (_eventBus == null)
+                    _eventBus = serviceProvider.GetInstances<IEventBus>();
+                //OnShutdown is bind to one event. If the event is not deleted,
+                //running it once will cause EventHandler to bind multiple events,
+                //increasing the size by 40 bytes each time
+                _eventBus.OnShutdown -= OnEvent;
+                _eventBus.OnShutdown += OnEvent;
+                _eventBus.Dispose();
                 serviceProvider.GetInstances<ISubscriptionAdapt>().SubscribeAt();
             });
+        }
+
+        private void OnEvent(object sender, EventArgs args)
+        {
+            _subscriptionAdapt.Unsubscribe();
         }
 
         /// <summary>
