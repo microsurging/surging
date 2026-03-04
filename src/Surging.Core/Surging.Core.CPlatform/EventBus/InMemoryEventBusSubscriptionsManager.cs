@@ -23,7 +23,7 @@ namespace Surging.Core.CPlatform.EventBus
         }
 
         public bool IsEmpty => !_handlers.Keys.Any();
-        public void Clear() => _handlers.Clear();
+       public void Clear()  { _handlers.Clear(); _consumers.Clear(); }
 
         public void AddSubscription<T, TH>(Func<TH> handler,string consumerName)
             where TH : IIntegrationEventHandler<T>
