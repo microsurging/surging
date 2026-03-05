@@ -30,6 +30,7 @@ namespace Surging.Core.CPlatform.Engines.Implementation
                 if (_serviceEngine.ModuleServiceLocationFormats != null)
                 {
                     var paths = GetPaths(_serviceEngine.ModuleServiceLocationFormats);
+                   paths = _serviceEngine.ModulePaths==null? paths:paths.AsEnumerable().Concat(_serviceEngine.ModulePaths).ToArray();
                     if (paths == null) return;
                     if (_logger.IsEnabled(LogLevel.Debug))
                         _logger.LogDebug($"准备加载路径${string.Join(',', paths)}下的业务模块。");
@@ -44,6 +45,7 @@ namespace Surging.Core.CPlatform.Engines.Implementation
                 if (_serviceEngine.ComponentServiceLocationFormats != null)
                 {
                     var paths = GetPaths(_serviceEngine.ComponentServiceLocationFormats);
+                    paths = _serviceEngine.ComponentPaths==null?paths: paths.AsEnumerable().Concat(_serviceEngine.ComponentPaths).ToArray();
                     if (paths == null) return;
                     if (_logger.IsEnabled(LogLevel.Debug))
                         _logger.LogDebug($"准备加载路径${string.Join(',', paths)}下的组件模块。");
@@ -69,6 +71,7 @@ namespace Surging.Core.CPlatform.Engines.Implementation
                 {
                     var paths = GetPaths(_serviceEngine.ModuleServiceLocationFormats);
                     paths = paths?.Where(p => (Directory.GetLastWriteTime(Path.Combine(rootPath, p)) - _lastBuildTime).TotalSeconds > 0).ToArray();
+                    paths = _serviceEngine.ModulePaths == null ? paths : paths.AsEnumerable().Concat(_serviceEngine.ModulePaths).ToArray();
                     if (paths != null && paths.Length > 0)
                     {
                         if (_logger.IsEnabled(LogLevel.Debug))
@@ -88,6 +91,7 @@ namespace Surging.Core.CPlatform.Engines.Implementation
                 {
                     var paths = GetPaths(_serviceEngine.ComponentServiceLocationFormats);
                     paths = paths?.Where(p => (Directory.GetLastWriteTime(Path.Combine(rootPath, p)) - _lastBuildTime).TotalSeconds > 0).ToArray();
+                    paths = _serviceEngine.ComponentPaths == null ? paths : paths.AsEnumerable().Concat(_serviceEngine.ComponentPaths).ToArray();
                     if (paths != null && paths.Length > 0)
                     {
                         if (_logger.IsEnabled(LogLevel.Debug))

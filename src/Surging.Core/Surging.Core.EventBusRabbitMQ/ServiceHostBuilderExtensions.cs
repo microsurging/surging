@@ -16,7 +16,7 @@ namespace Surging.Core.EventBusRabbitMQ
             {
                 mapper.Resolve<IServiceEngineLifetime>().ServiceEngineStarted.Register(() =>
                 {
-                      mapper.Resolve<ISubscriptionAdapt>().SubscribeAt();
+                    mapper.Resolve<ISubscriptionAdapt>().SubscribeAt();
                     new ServiceRouteWatch(mapper.Resolve<CPlatformContainer>(), () =>
                     {
                         var subscriptionAdapt = mapper.Resolve<ISubscriptionAdapt>();

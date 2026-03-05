@@ -36,7 +36,7 @@ namespace Surging.Core.EventBusRabbitMQ
                 _eventBus.OnShutdown -= OnEvent;
                 _eventBus.OnShutdown += OnEvent;
                 _eventBus.Dispose();
-                serviceProvider.GetInstances<ISubscriptionAdapt>().SubscribeAt();
+                _subscriptionAdapt.SubscribeAt();
             });
         }
 

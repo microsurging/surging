@@ -22,7 +22,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
         public ServiceHost(ContainerBuilder builder,
             IServiceProvider hostingServiceProvider,
             IHostLifetime hostLifetime,
-             List<Action<IContainer>> mapServicesDelegate)
+            List<Action<IContainer>> mapServicesDelegate)
         {
             _builder = builder;
             _hostingServiceProvider = hostingServiceProvider;
