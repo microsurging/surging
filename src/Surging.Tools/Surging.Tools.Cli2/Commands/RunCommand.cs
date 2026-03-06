@@ -14,6 +14,9 @@ using Surging.Core.Configuration.Apollo.Configurations;
 using System;
 using System.Text.RegularExpressions;
 using Surging.Core.CPlatform.Module;
+using Microsoft.Win32;
+using Surging.Tools.Cli2.Commands;
+using WebSocketCore;
 
 namespace Surging.Tools.Cli.Commands
 {
@@ -39,9 +42,15 @@ namespace Surging.Tools.Cli.Commands
         [Option("--grpc", "open Grpc", CommandOptionType.NoValue)]
         public bool Grpc { get; }
 
+        [Option("--regtype", "registry center", CommandOptionType.NoValue)]
+        public RegistryType Registry {  get; }
+
 
         [Option("-p|--path", "Multiple business module paths", CommandOptionType.MultipleValue)]
         public string[] Path { get; }
+
+        [Option("-a|--address", "registry center address default 127.0.0.1:8500", CommandOptionType.SingleValue)]
+        public string Address { get; set; }
 
         [Option("--ip", "ip address default 127.0.0.1", CommandOptionType.SingleValue)]
         public string Ip { get; set; }
@@ -71,7 +80,8 @@ namespace Surging.Tools.Cli.Commands
         private async Task OnExecute(CommandLineApplication app, IConsole console)
         {
             try
-            { 
+            {
+                ConfigureEnvironment();
                 var host = new ServiceHostBuilder()
                       .RegisterServices(builder =>
                       {
@@ -122,16 +132,31 @@ namespace Surging.Tools.Cli.Commands
             }
         }
 
+        private void ConfigureEnvironment()
+        {
+            if (!Address.IsNullOrEmpty())
+                Environment.SetEnvironmentVariable("Register_Conn", Address);
+        }
+
         private void Configure()
         {
+          
             AppConfig.ServerOptions.Ip = Ip;
             if(Port!=null)
             AppConfig.ServerOptions.Port = Port.Value;
             AppConfig.ServerOptions.Ports.MQTTPort = MqttPort ?? 0;
+            if (HttpPort != null)
+                AppConfig.ServerOptions.Ports.HttpPort = HttpPort.Value;
+            if (WSPort != null)
+                AppConfig.ServerOptions.Ports.WSPort = WSPort.Value;
+            if (GrpcPort != null)
+                AppConfig.ServerOptions.Ports.GrpcPort = GrpcPort.Value;
+       
             foreach (var item in AppConfig.ServerOptions.Packages)
             {
                 if (item.TypeName == "EnginePartModule")
-                {
+                {    
+                    item.Using = item.Using.Replace("ConsulModule;", "");
                     if (!Http)
                     {
                         item.Using = item.Using.Replace("KestrelHttpModule;", "");
@@ -143,6 +168,14 @@ namespace Surging.Tools.Cli.Commands
                     if (!Grpc)
                     {
                         item.Using = item.Using.Replace("GrpcModule;", "");
+                    }
+                    if(Registry == RegistryType.consul)
+                    {
+                        item.Using += "ConsulModule;";
+                    }
+                    if (Registry == RegistryType.zookeeper)
+                    {
+                        item.Using += "ZookeeperModule;";
                     }
                 }
             }

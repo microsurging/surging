@@ -160,7 +160,7 @@
     "Port": "${EventBusPort}|5672"
   },
   "Zookeeper": {
-    "ConnectionString": "${Zookeeper_ConnectionString}|127.0.0.1:2181", // "127.0.0.1:2181,127.0.0.1:2281",
+    "ConnectionString": "${Register_Conn}|127.0.0.1:2181", // "127.0.0.1:2181,127.0.0.1:2281",
     "SessionTimeout": 50,
     "ReloadOnChange": true
   },
