@@ -11,7 +11,6 @@ using Surging.Core.CPlatform;
 using Surging.Core.CPlatform.Configurations;
 using Surging.Core.CPlatform.Utilities;
 using Surging.Core.DotNetty;
-using Surging.Core.EventBusKafka.Configurations;
 //using Surging.Core.EventBusKafka;
 using Surging.Core.Log4net;
 using Surging.Core.Nlog;
