@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Surging.Core.CPlatform.EventBus
 {
-   public class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManager
+    public class InMemoryEventBusSubscriptionsManager : IEventBusSubscriptionsManager
     {
         private readonly Dictionary<string, List<Delegate>> _handlers;
         private readonly Dictionary<Delegate, string> _consumers;
@@ -23,7 +23,7 @@ namespace Surging.Core.CPlatform.EventBus
         }
 
         public bool IsEmpty => !_handlers.Keys.Any();
-        public void Clear() => _handlers.Clear();
+        public void Clear()  { _handlers.Clear(); _consumers.Clear(); }
 
         public void AddSubscription<T, TH>(Func<TH> handler,string consumerName)
             where TH : IIntegrationEventHandler<T>
@@ -74,7 +74,7 @@ namespace Surging.Core.CPlatform.EventBus
             var handler = OnEventRemoved;
             if (handler != null)
             {
-                OnEventRemoved(this,new ValueTuple<string,string>(consumerName, eventName));
+                handler(this,new ValueTuple<string,string>(consumerName, eventName));
             }
         }
 
