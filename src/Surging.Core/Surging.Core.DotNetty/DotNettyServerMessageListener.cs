@@ -15,6 +15,7 @@ using Surging.Core.CPlatform.Messages;
 using Surging.Core.CPlatform.Transport;
 using Surging.Core.CPlatform.Transport.Codec;
 using Surging.Core.DotNetty.Adapter;
+using Surging.Core.ServiceHosting.Internal;
 using System;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -31,17 +32,19 @@ namespace Surging.Core.DotNetty
         private readonly ITransportMessageEncoder _transportMessageEncoder;
         private IChannel _channel;
         private readonly IEventExecutorProvider _eventExecutorProvider;
+        private readonly IApplicationLifetime _applicationLifetime;
 
         #endregion Field
 
         #region Constructor
 
-        public DotNettyServerMessageListener(ILogger<DotNettyServerMessageListener> logger, IEventExecutorProvider eventExecutorProvider, ITransportMessageCodecFactory codecFactory)
+        public DotNettyServerMessageListener(ILogger<DotNettyServerMessageListener> logger, IEventExecutorProvider eventExecutorProvider, ITransportMessageCodecFactory codecFactory,IApplicationLifetime applicationLifetime)
         {
             _logger = logger;
             _eventExecutorProvider = eventExecutorProvider;
             _transportMessageEncoder = codecFactory.GetEncoder();
             _transportMessageDecoder = codecFactory.GetDecoder();
+            _applicationLifetime= applicationLifetime;
         }
 
         #endregion Constructor
@@ -116,6 +119,11 @@ namespace Surging.Core.DotNetty
             try
             {
                 _channel = await bootstrap.BindAsync(endPoint);
+                _applicationLifetime.ApplicationStopped.Register(async () =>
+                {
+                    await _channel.EventLoop.ShutdownGracefullyAsync();
+                    await _channel.CloseAsync();
+                });
                 if (_logger.IsEnabled(LogLevel.Debug))
                     _logger.LogDebug($"服务主机启动成功，监听地址：{endPoint}。");
             }

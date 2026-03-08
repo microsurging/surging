@@ -7,7 +7,9 @@ using Surging.Core.CPlatform.Runtime.Server;
 using Surging.Core.CPlatform.Runtime.Server.Implementation;
 using Surging.Core.CPlatform.Transport;
 using Surging.Core.CPlatform.Transport.Codec;
+using Surging.Core.ServiceHosting.Internal;
 using System;
+using IServiceHost = Surging.Core.CPlatform.Runtime.Server.IServiceHost;
 
 namespace Surging.Core.DotNetty
 {
@@ -49,7 +51,9 @@ namespace Surging.Core.DotNetty
             {
                 return new DotNettyServerMessageListener(provider.Resolve<ILogger<DotNettyServerMessageListener>>(),
                     provider.Resolve<IEventExecutorProvider>(), 
-                    provider.Resolve<ITransportMessageCodecFactory>());
+                    provider.Resolve<ITransportMessageCodecFactory>(),
+                    provider.Resolve<IApplicationLifetime>()
+                    );
             }).SingleInstance();
             builder.Register(provider =>
             {

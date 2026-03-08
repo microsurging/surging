@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autofac;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -17,7 +18,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             ApplicationLifetime = applicationLifetime ?? throw new ArgumentNullException(nameof(applicationLifetime));
         }
 
-        public Task WaitForStartAsync(CancellationToken cancellationToken)
+        public Task WaitForStartAsync(CancellationToken cancellationToken, IContainer container)
         {
             ApplicationLifetime.ApplicationStarted.Register(() =>
             {
@@ -35,6 +36,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             {
                 e.Cancel = true;
                 _shutdownBlock.Set();
+                container.Resolve<IApplicationLifetime>().StopApplication();
                 ApplicationLifetime.StopApplication();
             };
             return Task.CompletedTask;
