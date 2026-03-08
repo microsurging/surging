@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Surging.Tools.Cli2
 {
@@ -18,6 +19,8 @@ namespace Surging.Tools.Cli2
             ComponentServiceLocationFormats  = new[] {
                  EnvironmentHelper.GetEnvironmentVariable("${ComponentPath1}|Components"),
             };
+            ModulePaths= EnvironmentHelper.GetEnvironmentVariable("${ModulePaths}|").Split( "|");
+            ComponentPaths = EnvironmentHelper.GetEnvironmentVariable("${ComponentPaths}|").Split("|");
             //ModuleServiceLocationFormats = new[] {
             //   ""
             //};

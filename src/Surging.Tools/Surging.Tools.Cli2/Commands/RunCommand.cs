@@ -49,6 +49,9 @@ namespace Surging.Tools.Cli.Commands
         [Option("-p|--path", "Multiple business module paths", CommandOptionType.MultipleValue)]
         public string[] Path { get; }
 
+        [Option("--rootpath", "scan root path", CommandOptionType.SingleValue)]
+        public string RootPath {  get; }
+
         [Option("-a|--address", "registry center address default 127.0.0.1:8500", CommandOptionType.SingleValue)]
         public string Address { get; set; }
 
@@ -136,6 +139,8 @@ namespace Surging.Tools.Cli.Commands
         {
             if (!Address.IsNullOrEmpty())
                 Environment.SetEnvironmentVariable("Register_Conn", Address);
+            if(Path !=null)
+                Environment.SetEnvironmentVariable("ModulePaths", string.Join('|', Path));
         }
 
         private void Configure()
@@ -151,7 +156,9 @@ namespace Surging.Tools.Cli.Commands
                 AppConfig.ServerOptions.Ports.WSPort = WSPort.Value;
             if (GrpcPort != null)
                 AppConfig.ServerOptions.Ports.GrpcPort = GrpcPort.Value;
-       
+            if(RootPath != null)
+                AppConfig.ServerOptions.RootPath = RootPath;
+
             foreach (var item in AppConfig.ServerOptions.Packages)
             {
                 if (item.TypeName == "EnginePartModule")

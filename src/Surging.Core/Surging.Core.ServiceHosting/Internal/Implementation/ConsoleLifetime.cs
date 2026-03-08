@@ -23,7 +23,20 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             {
                 Console.WriteLine("服务已启动。 按下Ctrl + C关闭。");
             });
-             
+
+            AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
+            {
+                ApplicationLifetime.StopApplication();
+                //阻止程序主线程自动退出，等待退出信号
+                _shutdownBlock.WaitOne();
+            };
+            //按下Ctrl+C退出程序
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                e.Cancel = true;
+                _shutdownBlock.Set();
+                ApplicationLifetime.StopApplication();
+            };
             return Task.CompletedTask;
         }
 

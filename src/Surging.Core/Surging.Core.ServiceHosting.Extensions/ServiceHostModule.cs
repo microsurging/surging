@@ -6,6 +6,7 @@ using Surging.Core.CPlatform.Module;
 using Surging.Core.CPlatform.Runtime.Server;
 using Surging.Core.ServiceHosting.Extensions.Runtime;
 using Surging.Core.ServiceHosting.Extensions.Runtime.Implementation;
+using Surging.Core.ServiceHosting.Internal;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,6 +36,10 @@ namespace Surging.Core.ServiceHosting.Extensions
                         {
                             entry.Behavior.StopAsync(cts.Token);
                         }
+                    });
+                    serviceProvider.GetInstances<IApplicationLifetime>().ApplicationStopped.Register(async () =>
+                    {
+                       await entry.Behavior.StopAsync(cts.Token);
                     });
                 }
             });
