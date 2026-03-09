@@ -38,19 +38,20 @@ namespace Surging.Tools.Cli.Commands
 
         [Option("-ws", "open WebSocket", CommandOptionType.NoValue)]
         public bool WebSocket { get; }
-          
+
         [Option("--grpc", "open Grpc", CommandOptionType.NoValue)]
         public bool Grpc { get; }
 
+
         [Option("--regtype", "registry center", CommandOptionType.NoValue)]
-        public RegistryType Registry {  get; }
+        public RegistryType Registry { get; }
 
 
         [Option("-p|--path", "Multiple business module paths", CommandOptionType.MultipleValue)]
         public string[] Path { get; }
 
         [Option("--rootpath", "scan root path", CommandOptionType.SingleValue)]
-        public string RootPath {  get; }
+        public string RootPath { get; }
 
         [Option("-a|--address", "registry center address default 127.0.0.1:8500", CommandOptionType.SingleValue)]
         public string Address { get; set; }
@@ -109,9 +110,9 @@ namespace Surging.Tools.Cli.Commands
                       .UseProxy()
                       .UseConsoleLifetime()
                       .MapServices(mapper =>
-                        {
-                            ConfigureModules(mapper);
-                        })
+                      {
+                          ConfigureModules(mapper);
+                      })
                       .Configure(build =>
                       build.AddCacheFile("${cachepath}|cacheSettings.json", basePath: AppContext.BaseDirectory, optional: false, reloadOnChange: true))
                         .Configure(build =>
@@ -139,16 +140,16 @@ namespace Surging.Tools.Cli.Commands
         {
             if (!Address.IsNullOrEmpty())
                 Environment.SetEnvironmentVariable("Register_Conn", Address);
-            if(Path !=null)
-                Environment.SetEnvironmentVariable("ModulePaths", string.Join('|', Path));
+            if (Path != null)
+                Environment.SetEnvironmentVariable("ModulePaths", $"{string.Join('|', Path)}");
         }
 
         private void Configure()
         {
-          
+
             AppConfig.ServerOptions.Ip = Ip;
-            if(Port!=null)
-            AppConfig.ServerOptions.Port = Port.Value;
+            if (Port != null)
+                AppConfig.ServerOptions.Port = Port.Value;
             AppConfig.ServerOptions.Ports.MQTTPort = MqttPort ?? 0;
             if (HttpPort != null)
                 AppConfig.ServerOptions.Ports.HttpPort = HttpPort.Value;
@@ -156,13 +157,13 @@ namespace Surging.Tools.Cli.Commands
                 AppConfig.ServerOptions.Ports.WSPort = WSPort.Value;
             if (GrpcPort != null)
                 AppConfig.ServerOptions.Ports.GrpcPort = GrpcPort.Value;
-            if(RootPath != null)
+            if (RootPath != null)
                 AppConfig.ServerOptions.RootPath = RootPath;
 
             foreach (var item in AppConfig.ServerOptions.Packages)
             {
                 if (item.TypeName == "EnginePartModule")
-                {    
+                {
                     item.Using = item.Using.Replace("ConsulModule;", "");
                     if (!Http)
                     {
@@ -176,7 +177,7 @@ namespace Surging.Tools.Cli.Commands
                     {
                         item.Using = item.Using.Replace("GrpcModule;", "");
                     }
-                    if(Registry == RegistryType.consul)
+                    if (Registry == RegistryType.consul)
                     {
                         item.Using += "ConsulModule;";
                     }
@@ -197,7 +198,7 @@ namespace Surging.Tools.Cli.Commands
                 {
                     p.Enable = false;
                 }
-                if(!WebService && p.ModuleName == "WebServiceModule")
+                if (!WebService && p.ModuleName == "WebServiceModule")
                 {
                     p.Enable = false;
                 }
