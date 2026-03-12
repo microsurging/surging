@@ -58,7 +58,7 @@ namespace WebSocketCore.Server
 
         #endregion
 
-        #region Protected Constructors
+    #region Protected Constructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="WebSocketBehavior"/> class.
@@ -109,7 +109,7 @@ namespace WebSocketCore.Server
     }
         #endregion
 
-        #region Public Properties
+    #region Public Properties
 
     /// <summary>
     /// Gets the current state of the WebSocket connection for a session.
@@ -869,6 +869,9 @@ namespace WebSocketCore.Server
       _websocket.SendAsync (stream, length, completed);
     }
 
-    #endregion
-  }
+    public Func<WebSocketSessionManager> Client { get; set; }
+
+    public Func<WebSocketServer> Server { get; set;  }
+        #endregion
+    }
 }

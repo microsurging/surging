@@ -1,0 +1,91 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>engine-cli</AssemblyName>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="skyapm.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="skyapm.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.ApiGateWay\Surging.Core.ApiGateWay.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Caching\Surging.Core.Caching.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Codec.MessagePack\Surging.Core.Codec.MessagePack.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Codec.ProtoBuffer\Surging.Core.Codec.ProtoBuffer.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Common\Surging.Core.Common.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Configuration.Apollo\Surging.Core.Configuration.Apollo.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Consul\Surging.Core.Consul.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.CPlatform\Surging.Core.CPlatform.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.DNS\Surging.Core.DNS.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.DotNettyWSServer\Surging.Core.DotNettyWSServer.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.DotNetty\Surging.Core.DotNetty.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.EventBusKafka\Surging.Core.EventBusKafka.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Grpc\Surging.Core.Grpc.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Kestrel.Log4net\Surging.Core.Kestrel.Log4net.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Kestrel.Nlog\Surging.Core.Kestrel.Nlog.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.KestrelHttpServer\Surging.Core.KestrelHttpServer.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Log4net\Surging.Core.Log4net.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.NLog\Surging.Core.Nlog.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Protocol.Coap\Surging.Core.Protocol.Coap.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Protocol.Http\Surging.Core.Protocol.Http.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Protocol.Mqtt\Surging.Core.Protocol.Mqtt.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Protocol.Tcp\Surging.Core.Protocol.Tcp.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Protocol.Udp\Surging.Core.Protocol.Udp.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Protocol.WebService\Surging.Core.Protocol.WebService.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Protocol.WS\Surging.Core.Protocol.WS.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.ProxyGenerator.Extensions\Surging.Core.ProxyGenerator.Extensions.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.ProxyGenerator\Surging.Core.ProxyGenerator.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Serilog\Surging.Core.Serilog.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.ServiceHosting.Extensions\Surging.Core.ServiceHosting.Extensions.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.ServiceHosting\Surging.Core.ServiceHosting.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Stage\Surging.Core.Stage.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Swagger_V5\Surging.Core.Swagger_V5.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.System\Surging.Core.System.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Thrift\Surging.Core.Thrift.csproj" />
+    <ProjectReference Include="..\..\Surging.Core\Surging.Core.Zookeeper\Surging.Core.Zookeeper.csproj" />
+    <ProjectReference Include="..\..\WebSocket\WebSocketCore\WebSocketCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="apollo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="cacheSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Configs\consul.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="eventBusSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="surgingSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -22,7 +22,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
         public ServiceHost(ContainerBuilder builder,
             IServiceProvider hostingServiceProvider,
             IHostLifetime hostLifetime,
-             List<Action<IContainer>> mapServicesDelegate)
+            List<Action<IContainer>> mapServicesDelegate)
         {
             _builder = builder;
             _hostingServiceProvider = hostingServiceProvider;
@@ -49,7 +49,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             if (_hostLifetime != null)
             {
                 _applicationLifetime = _hostingServiceProvider.GetService<IApplicationLifetime>();
-                await _hostLifetime.WaitForStartAsync(cancellationToken);
+                await _hostLifetime.WaitForStartAsync(cancellationToken, _applicationServices);
                 cancellationToken.ThrowIfCancellationRequested();
                 _applicationLifetime?.NotifyStarted();
             }

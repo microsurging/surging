@@ -37,8 +37,10 @@ namespace Surging.Core.CPlatform.Routing.Implementation
             _logger = logger;
 
             var directoryName = Path.GetDirectoryName(filePath);
-            if (!string.IsNullOrEmpty(directoryName))
-                _fileSystemWatcher = new FileSystemWatcher(directoryName, "*" + Path.GetExtension(filePath));
+            if (!Directory.Exists(directoryName))
+                Directory.CreateDirectory(directoryName);
+            if (!File.Exists(filePath)) File.Create(filePath).Close();
+            _fileSystemWatcher = new FileSystemWatcher(directoryName, Path.GetFileName(filePath));
 
             _fileSystemWatcher.Changed += _fileSystemWatcher_Changed;
             _fileSystemWatcher.Created += _fileSystemWatcher_Changed;
@@ -75,6 +77,10 @@ namespace Surging.Core.CPlatform.Routing.Implementation
             return _routes;
         }
 
+        public override void ClearRoute()
+        {
+            _routes = null;
+        }
         /// <summary>
         ///     清空所有的服务路由。
         /// </summary>
@@ -249,6 +255,11 @@ namespace Surging.Core.CPlatform.Routing.Implementation
             }
 
             await EntryRoutes(_filePath);
+        }
+
+        public override ValueTask AddNodeMonitorWatcher(string serviceId)
+        {
+            return ValueTask.CompletedTask;
         }
 
         #endregion Private Method

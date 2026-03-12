@@ -1,11 +1,15 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using Surging.Core.CPlatform;
+using Surging.Core.CPlatform.EventExecutor;
+using Surging.Core.CPlatform.Runtime.Client.HealthChecks;
 using Surging.Core.CPlatform.Runtime.Server;
 using Surging.Core.CPlatform.Runtime.Server.Implementation;
 using Surging.Core.CPlatform.Transport;
 using Surging.Core.CPlatform.Transport.Codec;
+using Surging.Core.ServiceHosting.Internal;
 using System;
+using IServiceHost = Surging.Core.CPlatform.Runtime.Server.IServiceHost;
 
 namespace Surging.Core.DotNetty
 {
@@ -28,7 +32,9 @@ namespace Surging.Core.DotNetty
                 if (provider.IsRegistered(typeof(IServiceExecutor)))
                     serviceExecutor = provider.Resolve<IServiceExecutor>();
                 return new DotNettyTransportClientFactory(provider.Resolve<ITransportMessageCodecFactory>(),
-                    provider.Resolve<ILogger<DotNettyTransportClientFactory>>(),
+                        provider.Resolve<IEventExecutorProvider>(),
+                    provider.Resolve<IHealthCheckService>(),
+                     provider.Resolve<ILogger<DotNettyTransportClientFactory>>(),
                     serviceExecutor);
             }).As(typeof(ITransportClientFactory)).SingleInstance();
             if (AppConfig.ServerOptions.Protocol == CommunicationProtocol.Tcp ||
@@ -44,7 +50,10 @@ namespace Surging.Core.DotNetty
             builder.Register(provider =>
             {
                 return new DotNettyServerMessageListener(provider.Resolve<ILogger<DotNettyServerMessageListener>>(),
-                      provider.Resolve<ITransportMessageCodecFactory>());
+                    provider.Resolve<IEventExecutorProvider>(), 
+                    provider.Resolve<ITransportMessageCodecFactory>(),
+                    provider.Resolve<IApplicationLifetime>()
+                    );
             }).SingleInstance();
             builder.Register(provider =>
             {

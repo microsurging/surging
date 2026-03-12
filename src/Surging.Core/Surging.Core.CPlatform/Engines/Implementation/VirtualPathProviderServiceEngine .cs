@@ -9,5 +9,9 @@ namespace Surging.Core.CPlatform.Engines.Implementation
         public string[] ModuleServiceLocationFormats { get; set; } 
 
         public string[] ComponentServiceLocationFormats { get; set; }
+
+        public string[] ModulePaths { get; set; }
+
+        public string[] ComponentPaths {  get; set; }
     }
 }
