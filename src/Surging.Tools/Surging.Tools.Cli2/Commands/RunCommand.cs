@@ -44,7 +44,7 @@ namespace Surging.Tools.Cli.Commands
         public bool Grpc { get; }
 
 
-        [Option("--regtype", "registry center", CommandOptionType.NoValue)]
+        [Option("--regtype", "registry center", CommandOptionType.SingleValue)]
         public RegistryType? Registry { get; }
 
 
@@ -191,6 +191,7 @@ namespace Surging.Tools.Cli.Commands
                   {
                       item.Using += "ZookeeperModule;";
                   }
+
               }
               if (item.TypeName == "KestrelHttpModule")
               {
