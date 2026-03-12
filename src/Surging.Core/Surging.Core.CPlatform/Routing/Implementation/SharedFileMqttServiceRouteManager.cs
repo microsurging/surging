@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Surging.Core.CPlatform.Address;
+using Surging.Core.CPlatform.Mqtt;
+using Surging.Core.CPlatform.Mqtt.Implementation;
 using Surging.Core.CPlatform.Serialization;
 using System;
 using System.Collections.Generic;
@@ -10,30 +12,27 @@ using System.Threading.Tasks;
 
 namespace Surging.Core.CPlatform.Routing.Implementation
 {
-    /// <summary>
-    /// 基于共享文件的服务路由管理者。
-    /// </summary>
-    public class SharedFileServiceRouteManager : ServiceRouteManagerBase, IDisposable
+    public class SharedFileMqttServiceRouteManager : MqttServiceRouteManagerBase, IDisposable
     {
         #region Field
 
         private readonly string _filePath;
         private readonly ISerializer<string> _serializer;
-        private readonly IServiceRouteFactory _serviceRouteFactory;
-        private readonly ILogger<SharedFileServiceRouteManager> _logger;
-        private ServiceRoute[] _routes;
+        private readonly IMqttServiceFactory _mqttServiceFactory;
+        private readonly ILogger<SharedFileMqttServiceRouteManager> _logger;
+        private MqttServiceRoute[] _routes;
         private readonly FileSystemWatcher _fileSystemWatcher;
 
         #endregion Field
 
         #region Constructor
 
-        public SharedFileServiceRouteManager(string filePath, ISerializer<string> serializer,
-            IServiceRouteFactory serviceRouteFactory, ILogger<SharedFileServiceRouteManager> logger) : base(serializer)
+        public SharedFileMqttServiceRouteManager(string filePath, ISerializer<string> serializer,
+            IMqttServiceFactory mqttServiceFactory, ILogger<SharedFileMqttServiceRouteManager> logger) : base(serializer)
         {
             _filePath = filePath;
             _serializer = serializer;
-            _serviceRouteFactory = serviceRouteFactory;
+            _mqttServiceFactory = mqttServiceFactory;
             _logger = logger;
 
             var directoryName = Path.GetDirectoryName(filePath);
@@ -70,17 +69,14 @@ namespace Surging.Core.CPlatform.Routing.Implementation
         ///     获取所有可用的服务路由信息。
         /// </summary>
         /// <returns>服务路由集合。</returns>
-        public override async Task<IEnumerable<ServiceRoute>> GetRoutesAsync()
+        public override async Task<IEnumerable<MqttServiceRoute>> GetRoutesAsync()
         {
             if (_routes == null)
                 await EntryRoutes(_filePath);
             return _routes;
         }
 
-        public override void ClearRoute()
-        {
-            _routes = null;
-        }
+   
         /// <summary>
         ///     清空所有的服务路由。
         /// </summary>
@@ -97,7 +93,7 @@ namespace Surging.Core.CPlatform.Routing.Implementation
         /// </summary>
         /// <param name="routes">服务路由集合。</param>
         /// <returns>一个任务。</returns>
-        protected override async Task SetRoutesAsync(IEnumerable<ServiceRouteDescriptor> routes)
+        protected override async Task SetRoutesAsync(IEnumerable<MqttServiceDescriptor> routes)
         {
             using (var fileStream = new FileStream(_filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
             {
@@ -114,7 +110,7 @@ namespace Surging.Core.CPlatform.Routing.Implementation
             var routes = await GetRoutesAsync();
             foreach (var route in routes)
             {
-                route.Address = route.Address.Except(Address);
+                route.MqttEndpoint = route.MqttEndpoint.Except(Address);
             }
             await base.SetRoutesAsync(routes);
         }
@@ -123,9 +119,9 @@ namespace Surging.Core.CPlatform.Routing.Implementation
 
         #region Private Method
 
-        private async Task<IEnumerable<ServiceRoute>> GetRoutes(string file)
+        private async Task<IEnumerable<MqttServiceRoute>> GetRoutes(string file)
         {
-            ServiceRoute[] routes;
+            MqttServiceRoute[] routes;
             if (File.Exists(file))
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
@@ -152,24 +148,24 @@ namespace Surging.Core.CPlatform.Routing.Implementation
                     var serializer = _serializer;
                     routes =
                     (await
-                        _serviceRouteFactory.CreateServiceRoutesAsync(
-                            serializer.Deserialize<string, ServiceRouteDescriptor[]>(content))).ToArray();
+                        _mqttServiceFactory.CreateMqttServiceRoutesAsync(
+                            serializer.Deserialize<string, MqttServiceDescriptor[]>(content))).ToArray();
                     if (_logger.IsEnabled(LogLevel.Information))
                         _logger.LogInformation(
-                            $"成功获取到以下路由信息：{string.Join(",", routes.Select(i => i.ServiceDescriptor.Id))}。");
+                            $"成功获取到以下路由信息：{string.Join(",", routes.Select(i => i.MqttDescriptor.Topic))}。");
                 }
                 catch (Exception exception)
                 {
                     if (_logger.IsEnabled(LogLevel.Error))
-                        _logger.LogError(exception,"获取路由信息时发生了错误。");
-                    routes = new ServiceRoute[0];
+                        _logger.LogError(exception, "获取路由信息时发生了错误。");
+                    routes = new MqttServiceRoute[0];
                 }
             }
             else
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning($"无法获取路由信息，因为文件：{file}不存在。");
-                routes = new ServiceRoute[0];
+                routes = new MqttServiceRoute[0];
             }
             return routes;
         }
@@ -182,14 +178,14 @@ namespace Surging.Core.CPlatform.Routing.Implementation
             if (oldRoutes == null)
             {
                 //触发服务路由创建事件。
-                OnCreated(newRoutes.Select(route => new ServiceRouteEventArgs(route)).ToArray());
+                OnCreated(newRoutes.Select(route => new MqttServiceRouteEventArgs(route)).ToArray());
             }
             else
             {
                 //旧的服务Id集合。
-                var oldServiceIds = oldRoutes.Select(i => i.ServiceDescriptor.Id).ToArray();
+                var oldServiceIds = oldRoutes.Select(i => i.MqttDescriptor.Topic).ToArray();
                 //新的服务Id集合。
-                var newServiceIds = newRoutes.Select(i => i.ServiceDescriptor.Id).ToArray();
+                var newServiceIds = newRoutes.Select(i => i.MqttDescriptor.Topic).ToArray();
 
                 //被删除的服务Id集合
                 var removeServiceIds = oldServiceIds.Except(newServiceIds).ToArray();
@@ -200,29 +196,29 @@ namespace Surging.Core.CPlatform.Routing.Implementation
 
                 //触发服务路由创建事件。
                 OnCreated(
-                    newRoutes.Where(i => addServiceIds.Contains(i.ServiceDescriptor.Id))
-                        .Select(route => new ServiceRouteEventArgs(route))
+                    newRoutes.Where(i => addServiceIds.Contains(i.MqttDescriptor.Topic))
+                        .Select(route => new MqttServiceRouteEventArgs(route))
                         .ToArray());
 
                 //触发服务路由删除事件。
                 OnRemoved(
-                    oldRoutes.Where(i => removeServiceIds.Contains(i.ServiceDescriptor.Id))
-                        .Select(route => new ServiceRouteEventArgs(route))
+                    oldRoutes.Where(i => removeServiceIds.Contains(i.MqttDescriptor.Topic))
+                        .Select(route => new MqttServiceRouteEventArgs(route))
                         .ToArray());
 
                 //触发服务路由变更事件。
                 var currentMayModifyRoutes =
-                    newRoutes.Where(i => mayModifyServiceIds.Contains(i.ServiceDescriptor.Id)).ToArray();
+                    newRoutes.Where(i => mayModifyServiceIds.Contains(i.MqttDescriptor.Topic)).ToArray();
                 var oldMayModifyRoutes =
-                    oldRoutes.Where(i => mayModifyServiceIds.Contains(i.ServiceDescriptor.Id)).ToArray();
+                    oldRoutes.Where(i => mayModifyServiceIds.Contains(i.MqttDescriptor.Topic)).ToArray();
 
                 foreach (var oldMayModifyRoute in oldMayModifyRoutes)
                 {
                     if (!currentMayModifyRoutes.Contains(oldMayModifyRoute))
                         OnChanged(
-                            new ServiceRouteChangedEventArgs(
+                            new MqttServiceRouteChangedEventArgs(
                                 currentMayModifyRoutes.First(
-                                    i => i.ServiceDescriptor.Id == oldMayModifyRoute.ServiceDescriptor.Id),
+                                    i => i.MqttDescriptor.Topic == oldMayModifyRoute.MqttDescriptor.Topic),
                                 oldMayModifyRoute));
                 }
             }
@@ -257,10 +253,25 @@ namespace Surging.Core.CPlatform.Routing.Implementation
             await EntryRoutes(_filePath);
         }
 
-        public override ValueTask AddNodeMonitorWatcher(string serviceId)
+        public override async Task RemoveByTopicAsync(string topic, IEnumerable<AddressModel> endpoint)
         {
-            return ValueTask.CompletedTask;
+            var routes = await GetRoutesAsync();
+            try
+            {
+                var route = routes.Where(p => p.MqttDescriptor.Topic == topic).SingleOrDefault();
+                if (route != null)
+                {
+                    route.MqttEndpoint = route.MqttEndpoint.Except(endpoint);
+                    await base.SetRoutesAsync(new MqttServiceRoute[] { route });
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+
 
         #endregion Private Method
     }

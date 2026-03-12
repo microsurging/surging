@@ -17,6 +17,7 @@ using Surging.Core.CPlatform.Module;
 using Microsoft.Win32;
 using Surging.Tools.Cli2.Commands;
 using WebSocketCore;
+using System.IO;
 
 namespace Surging.Tools.Cli.Commands
 {
@@ -44,7 +45,7 @@ namespace Surging.Tools.Cli.Commands
 
 
         [Option("--regtype", "registry center", CommandOptionType.NoValue)]
-        public RegistryType Registry { get; }
+        public RegistryType? Registry { get; }
 
 
         [Option("-p|--path", "Multiple business module paths", CommandOptionType.MultipleValue)]
@@ -97,6 +98,7 @@ namespace Surging.Tools.Cli.Commands
                               .AddConfigurationWatch()
                               //option.UseZooKeeperManager(new ConfigInfo("127.0.0.1:2181")); 
                               .AddServiceEngine(typeof(SurgingServiceEngine));
+                             
                               builder.Register(p => new CPlatformContainer(ServiceLocator.Current));
                           });
                       })
@@ -159,34 +161,53 @@ namespace Surging.Tools.Cli.Commands
                 AppConfig.ServerOptions.Ports.GrpcPort = GrpcPort.Value;
             if (RootPath != null)
                 AppConfig.ServerOptions.RootPath = RootPath;
+            AppConfig.ServerOptions.Packages.ForEach(item =>
+          {
+              if (item.TypeName == "EnginePartModule")
+              {
+                  item.Using = item.Using.Replace("ConsulModule;", "");
+                  if (!Http)
+                  {
+                      item.Using = item.Using.Replace("KestrelHttpModule;", "");
+                  }
+                  if (!WebSocket)
+                  {
+                      item.Using = item.Using.Replace("WSProtocolModule;", "");
+                  }
 
-            foreach (var item in AppConfig.ServerOptions.Packages)
-            {
-                if (item.TypeName == "EnginePartModule")
-                {
-                    item.Using = item.Using.Replace("ConsulModule;", "");
-                    if (!Http)
-                    {
-                        item.Using = item.Using.Replace("KestrelHttpModule;", "");
-                    }
-                    if (!WebSocket)
-                    {
-                        item.Using = item.Using.Replace("WSProtocolModule;", "");
-                    }
-                    if (!Grpc)
-                    {
-                        item.Using = item.Using.Replace("GrpcModule;", "");
-                    }
-                    if (Registry == RegistryType.consul)
-                    {
-                        item.Using += "ConsulModule;";
-                    }
-                    if (Registry == RegistryType.zookeeper)
-                    {
-                        item.Using += "ZookeeperModule;";
-                    }
-                }
-            }
+                  if (!Grpc)
+                  {
+                      item.Using = item.Using.Replace("GrpcModule;", "");
+                  }
+                  if (Registry == null)
+                  {
+                      item.Using += "SharedFileModule;";
+                  }
+                  if (Registry == RegistryType.consul)
+                  {
+                      item.Using += "ConsulModule;";
+                  }
+                  if (Registry == RegistryType.zookeeper)
+                  {
+                      item.Using += "ZookeeperModule;";
+                  }
+              }
+              if (item.TypeName == "KestrelHttpModule")
+              {
+                  if (!ApiGateway)
+                  {
+                      item.Using = item.Using.Replace("StageModule;", "");  
+                  }
+                  if (!WebService)
+                  {
+                      item.Using  = item.Using.Replace("WebServiceModule;", "");
+                  }
+                  if (!Doc)
+                  {
+                      item.Using = item.Using.Replace("SwaggerModule;", "");
+                  }
+              }
+          });
 
         }
 

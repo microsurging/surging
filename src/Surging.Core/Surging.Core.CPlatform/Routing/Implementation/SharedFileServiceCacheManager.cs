@@ -1,39 +1,38 @@
 ﻿using Microsoft.Extensions.Logging;
 using Surging.Core.CPlatform.Address;
+using Surging.Core.CPlatform.Cache;
+using Surging.Core.CPlatform.Cache.Implementation;
 using Surging.Core.CPlatform.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading.Tasks; 
 
 namespace Surging.Core.CPlatform.Routing.Implementation
 {
-    /// <summary>
-    /// 基于共享文件的服务路由管理者。
-    /// </summary>
-    public class SharedFileServiceRouteManager : ServiceRouteManagerBase, IDisposable
+    public class SharedFileServiceCacheManager : ServiceCacheManagerBase, IDisposable
     {
         #region Field
 
         private readonly string _filePath;
         private readonly ISerializer<string> _serializer;
-        private readonly IServiceRouteFactory _serviceRouteFactory;
-        private readonly ILogger<SharedFileServiceRouteManager> _logger;
-        private ServiceRoute[] _routes;
+        private readonly IServiceCacheFactory _serviceCacheFactory;
+        private readonly ILogger<SharedFileServiceCacheManager> _logger;
+        private ServiceCache [] _serviceCaches;
         private readonly FileSystemWatcher _fileSystemWatcher;
 
         #endregion Field
 
         #region Constructor
 
-        public SharedFileServiceRouteManager(string filePath, ISerializer<string> serializer,
-            IServiceRouteFactory serviceRouteFactory, ILogger<SharedFileServiceRouteManager> logger) : base(serializer)
+        public SharedFileServiceCacheManager(string filePath, ISerializer<string> serializer,
+            IServiceCacheFactory serviceCacheFactory, ILogger<SharedFileServiceCacheManager> logger) : base(serializer)
         {
             _filePath = filePath;
             _serializer = serializer;
-            _serviceRouteFactory = serviceRouteFactory;
+            _serviceCacheFactory = serviceCacheFactory;
             _logger = logger;
 
             var directoryName = Path.GetDirectoryName(filePath);
@@ -70,17 +69,14 @@ namespace Surging.Core.CPlatform.Routing.Implementation
         ///     获取所有可用的服务路由信息。
         /// </summary>
         /// <returns>服务路由集合。</returns>
-        public override async Task<IEnumerable<ServiceRoute>> GetRoutesAsync()
+        public override async Task<IEnumerable<ServiceCache>> GetCachesAsync()
         {
-            if (_routes == null)
+            if (_serviceCaches == null)
                 await EntryRoutes(_filePath);
-            return _routes;
+            return _serviceCaches;
         }
 
-        public override void ClearRoute()
-        {
-            _routes = null;
-        }
+       
         /// <summary>
         ///     清空所有的服务路由。
         /// </summary>
@@ -97,35 +93,35 @@ namespace Surging.Core.CPlatform.Routing.Implementation
         /// </summary>
         /// <param name="routes">服务路由集合。</param>
         /// <returns>一个任务。</returns>
-        protected override async Task SetRoutesAsync(IEnumerable<ServiceRouteDescriptor> routes)
+        public override async Task SetCachesAsync(IEnumerable<ServiceCacheDescriptor> caches)
         {
             using (var fileStream = new FileStream(_filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
             {
                 fileStream.SetLength(0);
                 using (var writer = new StreamWriter(fileStream, Encoding.UTF8))
                 {
-                    await writer.WriteAsync(_serializer.Serialize(routes));
+                    await writer.WriteAsync(_serializer.Serialize(caches));
                 }
             }
         }
 
-        public override async Task RemveAddressAsync(IEnumerable<AddressModel> Address)
+        public override async Task RemveAddressAsync(IEnumerable<CacheEndpoint> Address)
         {
-            var routes = await GetRoutesAsync();
-            foreach (var route in routes)
+            var caches = await GetCachesAsync();
+            foreach (var cache in caches)
             {
-                route.Address = route.Address.Except(Address);
+                cache.CacheEndpoint = cache.CacheEndpoint.Except(Address);
             }
-            await base.SetRoutesAsync(routes);
+            await base.SetCachesAsync(caches);
         }
 
         #endregion Overrides of ServiceRouteManagerBase
 
         #region Private Method
 
-        private async Task<IEnumerable<ServiceRoute>> GetRoutes(string file)
+        private async Task<IEnumerable<ServiceCache>> GetRoutes(string file)
         {
-            ServiceRoute[] routes;
+            ServiceCache[] caches;
             if (File.Exists(file))
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
@@ -150,46 +146,46 @@ namespace Surging.Core.CPlatform.Routing.Implementation
                 try
                 {
                     var serializer = _serializer;
-                    routes =
+                    caches =
                     (await
-                        _serviceRouteFactory.CreateServiceRoutesAsync(
-                            serializer.Deserialize<string, ServiceRouteDescriptor[]>(content))).ToArray();
+                        _serviceCacheFactory.CreateServiceCachesAsync(
+                            serializer.Deserialize<string, ServiceCacheDescriptor[]>(content))).ToArray();
                     if (_logger.IsEnabled(LogLevel.Information))
                         _logger.LogInformation(
-                            $"成功获取到以下路由信息：{string.Join(",", routes.Select(i => i.ServiceDescriptor.Id))}。");
+                            $"成功获取到以下路由信息：{string.Join(",", caches.Select(i => i.CacheDescriptor.Id))}。");
                 }
                 catch (Exception exception)
                 {
                     if (_logger.IsEnabled(LogLevel.Error))
-                        _logger.LogError(exception,"获取路由信息时发生了错误。");
-                    routes = new ServiceRoute[0];
+                        _logger.LogError(exception, "获取路由信息时发生了错误。");
+                    caches = new ServiceCache[0];
                 }
             }
             else
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning($"无法获取路由信息，因为文件：{file}不存在。");
-                routes = new ServiceRoute[0];
+                caches = new ServiceCache[0];
             }
-            return routes;
+            return caches;
         }
 
         private async Task EntryRoutes(string file)
         {
-            var oldRoutes = _routes?.ToArray();
-            var newRoutes = (await GetRoutes(file)).ToArray();
-            _routes = newRoutes;
-            if (oldRoutes == null)
+            var oldCaches = _serviceCaches?.ToArray();
+            var newCaches = (await GetRoutes(file)).ToArray();
+            _serviceCaches = newCaches;
+            if (oldCaches == null)
             {
                 //触发服务路由创建事件。
-                OnCreated(newRoutes.Select(route => new ServiceRouteEventArgs(route)).ToArray());
+                OnCreated(newCaches.Select(cache => new ServiceCacheEventArgs(cache)).ToArray());
             }
             else
             {
                 //旧的服务Id集合。
-                var oldServiceIds = oldRoutes.Select(i => i.ServiceDescriptor.Id).ToArray();
+                var oldServiceIds = oldCaches.Select(i => i.CacheDescriptor.Id).ToArray();
                 //新的服务Id集合。
-                var newServiceIds = newRoutes.Select(i => i.ServiceDescriptor.Id).ToArray();
+                var newServiceIds = newCaches.Select(i => i.CacheDescriptor.Id).ToArray();
 
                 //被删除的服务Id集合
                 var removeServiceIds = oldServiceIds.Except(newServiceIds).ToArray();
@@ -200,30 +196,30 @@ namespace Surging.Core.CPlatform.Routing.Implementation
 
                 //触发服务路由创建事件。
                 OnCreated(
-                    newRoutes.Where(i => addServiceIds.Contains(i.ServiceDescriptor.Id))
-                        .Select(route => new ServiceRouteEventArgs(route))
+                    newCaches.Where(i => addServiceIds.Contains(i.CacheDescriptor.Id))
+                        .Select(cache => new ServiceCacheEventArgs(cache))
                         .ToArray());
 
                 //触发服务路由删除事件。
                 OnRemoved(
-                    oldRoutes.Where(i => removeServiceIds.Contains(i.ServiceDescriptor.Id))
-                        .Select(route => new ServiceRouteEventArgs(route))
+                    oldCaches.Where(i => removeServiceIds.Contains(i.CacheDescriptor.Id))
+                        .Select(cache => new ServiceCacheEventArgs(cache))
                         .ToArray());
 
                 //触发服务路由变更事件。
-                var currentMayModifyRoutes =
-                    newRoutes.Where(i => mayModifyServiceIds.Contains(i.ServiceDescriptor.Id)).ToArray();
-                var oldMayModifyRoutes =
-                    oldRoutes.Where(i => mayModifyServiceIds.Contains(i.ServiceDescriptor.Id)).ToArray();
+                var currentMayModifyCaches =
+                    newCaches.Where(i => mayModifyServiceIds.Contains(i.CacheDescriptor.Id)).ToArray();
+                var oldMayModifyCaches =
+                    oldCaches.Where(i => mayModifyServiceIds.Contains(i.CacheDescriptor.Id)).ToArray();
 
-                foreach (var oldMayModifyRoute in oldMayModifyRoutes)
+                foreach (var oldMayModifyCache in oldMayModifyCaches)
                 {
-                    if (!currentMayModifyRoutes.Contains(oldMayModifyRoute))
+                    if (!currentMayModifyCaches.Contains(oldMayModifyCache))
                         OnChanged(
-                            new ServiceRouteChangedEventArgs(
-                                currentMayModifyRoutes.First(
-                                    i => i.ServiceDescriptor.Id == oldMayModifyRoute.ServiceDescriptor.Id),
-                                oldMayModifyRoute));
+                            new ServiceCacheChangedEventArgs(
+                                currentMayModifyCaches.First(
+                                    i => i.CacheDescriptor.Id == oldMayModifyCache.CacheDescriptor.Id),
+                                oldMayModifyCache));
                 }
             }
         }
@@ -257,10 +253,9 @@ namespace Surging.Core.CPlatform.Routing.Implementation
             await EntryRoutes(_filePath);
         }
 
-        public override ValueTask AddNodeMonitorWatcher(string serviceId)
-        {
-            return ValueTask.CompletedTask;
-        }
+  
+
+
 
         #endregion Private Method
     }

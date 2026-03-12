@@ -33,6 +33,10 @@
       {
         "TypeName": "EnginePartModule",
         "Using": "${UseEngineParts}|ServiceProxyModule;ProtokollwandlerModule;DotNettyModule;WebServiceModule;SerilogModule;NLogModule;ConsulModule;TcpProtocolModule;MessagePackModule;WSProtocolModule;MqttProtocolModule;EventBusRabbitMQModule;CachingModule;KestrelHttpModule;SwaggerModule;ApiGeteWayModule;SkywalkingModule;KestrelNLogModule;GrpcModule;ApolloModule;LiveStreamModule;"
+      },
+      {
+        "TypeName": "KestrelHttpModule",
+        "Using": "${KestrelHttps}|StageModule;KestrelHttpModule;SwaggerModule;WebServiceModule;"
       }
     ]
   }, //如果引用多个同类型的组件，需要配置Packages，如果是自定义按需引用，无需配置Packages

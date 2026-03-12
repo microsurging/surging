@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using Surging.Core.CPlatform.Address;
+using Surging.Core.CPlatform.Runtime.Server;
 using Surging.Core.CPlatform.Serialization;
+using Surging.Core.CPlatform.Support;
+using Surging.Core.CPlatform.Support.Implementation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,30 +12,25 @@ using System.Threading.Tasks;
 
 namespace Surging.Core.CPlatform.Routing.Implementation
 {
-    /// <summary>
-    /// 基于共享文件的服务路由管理者。
-    /// </summary>
-    public class SharedFileServiceRouteManager : ServiceRouteManagerBase, IDisposable
+    public class SharedFileServiceCommandManager : ServiceCommandManagerBase, IDisposable
     {
         #region Field
 
         private readonly string _filePath;
         private readonly ISerializer<string> _serializer;
-        private readonly IServiceRouteFactory _serviceRouteFactory;
-        private readonly ILogger<SharedFileServiceRouteManager> _logger;
-        private ServiceRoute[] _routes;
+        private readonly ILogger<SharedFileServiceCommandManager> _logger;
+        private ServiceCommandDescriptor[] _serviceCommands;
         private readonly FileSystemWatcher _fileSystemWatcher;
 
         #endregion Field
 
         #region Constructor
 
-        public SharedFileServiceRouteManager(string filePath, ISerializer<string> serializer,
-            IServiceRouteFactory serviceRouteFactory, ILogger<SharedFileServiceRouteManager> logger) : base(serializer)
+        public SharedFileServiceCommandManager(string filePath, ISerializer<string> serializer,
+            IServiceEntryManager serviceEntryManager,ILogger<SharedFileServiceCommandManager> logger) : base(serializer, serviceEntryManager)
         {
             _filePath = filePath;
             _serializer = serializer;
-            _serviceRouteFactory = serviceRouteFactory;
             _logger = logger;
 
             var directoryName = Path.GetDirectoryName(filePath);
@@ -70,17 +67,14 @@ namespace Surging.Core.CPlatform.Routing.Implementation
         ///     获取所有可用的服务路由信息。
         /// </summary>
         /// <returns>服务路由集合。</returns>
-        public override async Task<IEnumerable<ServiceRoute>> GetRoutesAsync()
+        public override async Task<IEnumerable<ServiceCommandDescriptor>> GetServiceCommandsAsync()
         {
-            if (_routes == null)
+            if (_serviceCommands == null)
                 await EntryRoutes(_filePath);
-            return _routes;
+            return _serviceCommands;
         }
 
-        public override void ClearRoute()
-        {
-            _routes = null;
-        }
+ 
         /// <summary>
         ///     清空所有的服务路由。
         /// </summary>
@@ -97,35 +91,26 @@ namespace Surging.Core.CPlatform.Routing.Implementation
         /// </summary>
         /// <param name="routes">服务路由集合。</param>
         /// <returns>一个任务。</returns>
-        protected override async Task SetRoutesAsync(IEnumerable<ServiceRouteDescriptor> routes)
+        public override async Task SetServiceCommandsAsync(IEnumerable<ServiceCommandDescriptor> commands)
         {
             using (var fileStream = new FileStream(_filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
             {
                 fileStream.SetLength(0);
                 using (var writer = new StreamWriter(fileStream, Encoding.UTF8))
                 {
-                    await writer.WriteAsync(_serializer.Serialize(routes));
+                    await writer.WriteAsync(_serializer.Serialize(commands));
                 }
             }
         }
-
-        public override async Task RemveAddressAsync(IEnumerable<AddressModel> Address)
-        {
-            var routes = await GetRoutesAsync();
-            foreach (var route in routes)
-            {
-                route.Address = route.Address.Except(Address);
-            }
-            await base.SetRoutesAsync(routes);
-        }
+ 
 
         #endregion Overrides of ServiceRouteManagerBase
 
         #region Private Method
 
-        private async Task<IEnumerable<ServiceRoute>> GetRoutes(string file)
+        private async Task<IEnumerable<ServiceCommandDescriptor>> GetServiceCommands(string file)
         {
-            ServiceRoute[] routes;
+            ServiceCommandDescriptor[] commands;
             if (File.Exists(file))
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
@@ -150,46 +135,43 @@ namespace Surging.Core.CPlatform.Routing.Implementation
                 try
                 {
                     var serializer = _serializer;
-                    routes =
-                    (await
-                        _serviceRouteFactory.CreateServiceRoutesAsync(
-                            serializer.Deserialize<string, ServiceRouteDescriptor[]>(content))).ToArray();
+                    commands = serializer.Deserialize<string, ServiceCommandDescriptor[]>(content);
                     if (_logger.IsEnabled(LogLevel.Information))
                         _logger.LogInformation(
-                            $"成功获取到以下路由信息：{string.Join(",", routes.Select(i => i.ServiceDescriptor.Id))}。");
+                            $"成功获取到以下路由信息：{string.Join(",", commands.Select(i => i.ServiceId))}。");
                 }
                 catch (Exception exception)
                 {
                     if (_logger.IsEnabled(LogLevel.Error))
-                        _logger.LogError(exception,"获取路由信息时发生了错误。");
-                    routes = new ServiceRoute[0];
+                        _logger.LogError(exception, "获取路由信息时发生了错误。");
+                    commands = new ServiceCommandDescriptor[0];
                 }
             }
             else
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
                     _logger.LogWarning($"无法获取路由信息，因为文件：{file}不存在。");
-                routes = new ServiceRoute[0];
+                commands = new ServiceCommandDescriptor[0];
             }
-            return routes;
+            return commands;
         }
 
         private async Task EntryRoutes(string file)
         {
-            var oldRoutes = _routes?.ToArray();
-            var newRoutes = (await GetRoutes(file)).ToArray();
-            _routes = newRoutes;
-            if (oldRoutes == null)
+            var oldCommands = _serviceCommands?.ToArray();
+            var newCommands = (await GetServiceCommands(file)).ToArray();
+            _serviceCommands = newCommands;
+            if (oldCommands == null)
             {
                 //触发服务路由创建事件。
-                OnCreated(newRoutes.Select(route => new ServiceRouteEventArgs(route)).ToArray());
+                OnCreated(newCommands.Select(command => new ServiceCommandEventArgs(command)).ToArray());
             }
             else
             {
                 //旧的服务Id集合。
-                var oldServiceIds = oldRoutes.Select(i => i.ServiceDescriptor.Id).ToArray();
+                var oldServiceIds = oldCommands.Select(i => i.ServiceId).ToArray();
                 //新的服务Id集合。
-                var newServiceIds = newRoutes.Select(i => i.ServiceDescriptor.Id).ToArray();
+                var newServiceIds = newCommands.Select(i => i.ServiceId).ToArray();
 
                 //被删除的服务Id集合
                 var removeServiceIds = oldServiceIds.Except(newServiceIds).ToArray();
@@ -200,29 +182,29 @@ namespace Surging.Core.CPlatform.Routing.Implementation
 
                 //触发服务路由创建事件。
                 OnCreated(
-                    newRoutes.Where(i => addServiceIds.Contains(i.ServiceDescriptor.Id))
-                        .Select(route => new ServiceRouteEventArgs(route))
+                    newCommands.Where(i => addServiceIds.Contains(i.ServiceId))
+                        .Select(command => new ServiceCommandEventArgs(command))
                         .ToArray());
 
                 //触发服务路由删除事件。
                 OnRemoved(
-                    oldRoutes.Where(i => removeServiceIds.Contains(i.ServiceDescriptor.Id))
-                        .Select(route => new ServiceRouteEventArgs(route))
+                    oldCommands.Where(i => removeServiceIds.Contains(i.ServiceId))
+                        .Select(command => new ServiceCommandEventArgs(command))
                         .ToArray());
 
                 //触发服务路由变更事件。
-                var currentMayModifyRoutes =
-                    newRoutes.Where(i => mayModifyServiceIds.Contains(i.ServiceDescriptor.Id)).ToArray();
-                var oldMayModifyRoutes =
-                    oldRoutes.Where(i => mayModifyServiceIds.Contains(i.ServiceDescriptor.Id)).ToArray();
+                var currentMayModifyCommands =
+                    newCommands.Where(i => mayModifyServiceIds.Contains(i.ServiceId)).ToArray();
+                var oldMayModifyCommands =
+                    oldCommands.Where(i => mayModifyServiceIds.Contains(i.ServiceId)).ToArray();
 
-                foreach (var oldMayModifyRoute in oldMayModifyRoutes)
+                foreach (var oldMayModifyRoute in oldMayModifyCommands)
                 {
-                    if (!currentMayModifyRoutes.Contains(oldMayModifyRoute))
+                    if (!currentMayModifyCommands.Contains(oldMayModifyRoute))
                         OnChanged(
-                            new ServiceRouteChangedEventArgs(
-                                currentMayModifyRoutes.First(
-                                    i => i.ServiceDescriptor.Id == oldMayModifyRoute.ServiceDescriptor.Id),
+                            new ServiceCommandChangedEventArgs(
+                                currentMayModifyCommands.First(
+                                    i => i.ServiceId == oldMayModifyRoute.ServiceId),
                                 oldMayModifyRoute));
                 }
             }
@@ -262,6 +244,12 @@ namespace Surging.Core.CPlatform.Routing.Implementation
             return ValueTask.CompletedTask;
         }
 
+        protected override async Task InitServiceCommandsAsync(IEnumerable<ServiceCommandDescriptor> serviceCommands)
+        {
+            await SetServiceCommandsAsync(serviceCommands);
+        }
+
         #endregion Private Method
     }
 }
+

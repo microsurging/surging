@@ -24,9 +24,10 @@ namespace Surging.Core.Consul.Internal.Implementation
         private readonly ConsulServiceCommandManager _consulServiceCommandManager;
         private readonly ConsulMqttServiceRouteManager _consulMqttServiceRouteManager;
         private readonly ConsulServiceCacheManager _consulServiceCacheManager;
-        public HandlerService(ConfigInfo configInfo, ISerializer<string> stringSerializer, CPlatformContainer serviceProvider)
+        public HandlerService(ISerializer<string> stringSerializer, CPlatformContainer serviceProvider)
         {
-            _configInfo = configInfo;
+            if( serviceProvider.IsRegistered<ConfigInfo>())
+            _configInfo = serviceProvider.GetInstances<ConfigInfo>();
             _stringSerializer = stringSerializer;
             _consulServiceRouteManager = serviceProvider.GetInstances<IServiceRouteManager>() as ConsulServiceRouteManager;
             _consulServiceCommandManager = serviceProvider.GetInstances<IServiceCommandManager>() as ConsulServiceCommandManager;

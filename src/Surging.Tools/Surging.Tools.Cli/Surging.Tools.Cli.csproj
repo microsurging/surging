@@ -27,4 +27,8 @@
     <ProjectReference Include="..\..\Surging.Core\Surging.Core.CPlatform\Surging.Core.CPlatform.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="新文件夹\" />
+  </ItemGroup>
+
 </Project>
