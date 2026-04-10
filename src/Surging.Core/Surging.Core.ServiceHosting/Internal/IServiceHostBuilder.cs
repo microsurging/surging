@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Surging.Core.ServiceHosting.Internal
 {
@@ -21,6 +22,8 @@ namespace Surging.Core.ServiceHosting.Internal
         IServiceHostBuilder Configure(Action<IConfigurationBuilder> builder);
 
         IServiceHostBuilder MapServices(Action<IContainer> mapper);
-         
+
+        IServiceHostBuilder MapServices(Func<IContainer, Task> mapper);
+
     }
 }

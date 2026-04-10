@@ -1,0 +1,124 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Runtime\ITemplateRender.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Scriban" Version="7.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Surging.Core.CPlatform\Surging.Core.CPlatform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Templates\Demo\Common\BaseParam\BaseQuery.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\CommonModule.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Context\Identity.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Context\IdentityContext.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Enums\EnumReturnCode.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Enums\OrderByTypeEnum.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Extensions\EnumExtensions.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Extensions\GeneralExtension.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Repsitories\Entities\ObjectEntity.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Repsitories\IEFRepository.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Repsitories\Implementation\EFRepository.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Repsitories\Models\BaseModel.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Response\ApiResult.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\Response\Page.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Common\{prefix}.Core.Common.csproj.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\AppConfig.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\DatabaseType.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\DataContext.cs.ptpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\Entities\EntityFull.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\Entities\{table}.cs.ctpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\Implementation\SqliteContext.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\{prefix}.DataAccess.{project}.csproj.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\{project}DataModule.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\DataAccess\{project}DataOption.cs.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\IModuleService\{prefix}.IModuleService.{project}.csproj.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\ModuleService\Repositories\{table}Repository.cs.ctpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\ModuleService\{prefix}.ModuleService.{project}.csproj.tpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\IModuleService\I{table}Service.cs.ctpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\IModuleService\Models\{table}Model.cs.ctpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\ModuleService\Domains\{table}Service.cs.ctpl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Packages\Surging_v2.0\Surging.Core.CPlatform.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Templates\Demo\Packages\Surging_v2.0\Surging.Core.ProxyGenerator.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Templates\Demo\Packages\Surging_v2.0\" />
+  </ItemGroup>
+
+</Project>

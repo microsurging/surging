@@ -3,38 +3,41 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Surging.Core.CPlatform;
+using Surging.Core.ServiceHosting.Internal;
+using Surging.Core.ServiceHosting.Internal.Implementation;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text;
+using System.Text.RegularExpressions;
 
-namespace Surging.Core.ServiceHosting.Internal.Implementation
+namespace Surging.Core.TemplateEngine.Runtime.Implementation
 {
-    public class ServiceHostBuilder : IServiceHostBuilder
+    public class TemplateServiceBuilder : ITemplateServiceBuilder
     {
         private readonly List<Action<IServiceCollection>> _configureServicesDelegates;
         private readonly List<Action<ContainerBuilder>> _registerServicesDelegates;
         private readonly List<Action<IConfigurationBuilder>> _configureDelegates;
         private readonly List<Action<IContainer>> _mapServicesDelegates;
-        private readonly List<Func<IContainer, Task>> _mapAsyncServicesDelegates;
-        private  Action<ILoggingBuilder> _loggingDelegate;
+        private readonly List<Func<IContainer,Task>> _mapAsyncServicesDelegates;
+        private Action<ILoggingBuilder> _loggingDelegate;
 
-        public ServiceHostBuilder()
+        public TemplateServiceBuilder()
         {
             _configureServicesDelegates = new List<Action<IServiceCollection>>();
             _registerServicesDelegates = new List<Action<ContainerBuilder>>();
             _configureDelegates = new List<Action<IConfigurationBuilder>>();
             _mapServicesDelegates = new List<Action<IContainer>>();
-            _mapAsyncServicesDelegates = new List<Func<IContainer, Task>>();
-
+            _mapAsyncServicesDelegates = new List<Func<IContainer,Task>>();
         }
 
-        public IServiceHost Build()
+        public ITemplateServiceHost Build()
         {
-           
+
             var services = BuildCommonServices();
             var config = Configure();
-            if(_loggingDelegate!=null)
-            services.AddLogging(_loggingDelegate);
+            if (_loggingDelegate != null)
+                services.AddLogging(_loggingDelegate);
             else
                 services.AddLogging();
             services.AddSingleton(typeof(IConfigurationBuilder), config);
@@ -43,12 +46,12 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             var hostingServiceProvider = services.BuildServiceProvider();
             hostingServices.Populate(services);
             var hostLifetime = hostingServiceProvider.GetService<IHostLifetime>();
-            var host = new ServiceHost(hostingServices,hostingServiceProvider, hostLifetime,_mapServicesDelegates, _mapAsyncServicesDelegates);
-            var container= host.Initialize();
+            var host = new TemplateServiceHost(hostingServices, hostingServiceProvider, hostLifetime, _mapServicesDelegates, _mapAsyncServicesDelegates);
+            var container = host.Initialize();
             return host;
         }
 
-        public IServiceHostBuilder MapServices(Action<IContainer> mapper)
+        public ITemplateServiceBuilder MapServices(Action<IContainer> mapper)
         {
             if (mapper == null)
             {
@@ -58,7 +61,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             return this;
         }
 
-        public IServiceHostBuilder MapServices(Func<IContainer, Task> mapper)
+        public ITemplateServiceBuilder MapServices(Func<IContainer,Task> mapper)
         {
             if (mapper == null)
             {
@@ -68,7 +71,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             return this;
         }
 
-        public IServiceHostBuilder RegisterServices(Action<ContainerBuilder> builder)
+        public ITemplateServiceBuilder RegisterServices(Action<ContainerBuilder> builder)
         {
             if (builder == null)
             {
@@ -77,8 +80,8 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             _registerServicesDelegates.Add(builder);
             return this;
         }
-        
-        public IServiceHostBuilder ConfigureServices(Action<IServiceCollection> configureServices)
+
+        public ITemplateServiceBuilder ConfigureServices(Action<IServiceCollection> configureServices)
         {
             if (configureServices == null)
             {
@@ -88,14 +91,14 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             return this;
         }
 
-        public IServiceHostBuilder Configure(Action<IConfigurationBuilder> builder)
+        public ITemplateServiceBuilder Configure(Action<IConfigurationBuilder> builder)
         {
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
             _configureDelegates.Add(builder);
-            return this; 
+            return this;
         }
 
         private IServiceCollection BuildCommonServices()
@@ -110,14 +113,14 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
 
         private IConfigurationBuilder Configure()
         {
-            var config = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory); 
+            var config = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory);
             foreach (var configure in _configureDelegates)
             {
                 configure(config);
             }
             return config;
         }
-        
+
         private ContainerBuilder RegisterServices()
         {
             var hostingServices = new ContainerBuilder();
@@ -128,14 +131,14 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             return hostingServices;
         }
 
-        public IServiceHostBuilder ConfigureLogging(Action<ILoggingBuilder> configure)
+        public ITemplateServiceBuilder ConfigureLogging(Action<ILoggingBuilder> configure)
         {
             if (configure == null)
             {
                 throw new ArgumentNullException(nameof(configure));
             }
-            _loggingDelegate=configure;
+            _loggingDelegate = configure;
             return this;
         }
     }
-}
+} 

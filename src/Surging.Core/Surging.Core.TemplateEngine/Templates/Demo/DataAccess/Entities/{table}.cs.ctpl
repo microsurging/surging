@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace {{ prefix }}.DataAccess.{{ project.name }}.Entities
+{   
+    [Table("{{ project.name }}_{{ table.name }}")]
+      public class {{ table.name }}:EntityFull
+    {
+    {{ for item in table.columns }}
+    public {{ item.datatype }} {{ item.name }} {get;set;}
+    {{ end  }}
+    }
+}

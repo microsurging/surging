@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Surging.Core.CPlatform.Utilities;
 using Surging.Tools.Cli.Commands;
 using Surging.Tools.Cli2.Commands;
+using Surging.Tools.Cli2.Commands.Net;
 
 namespace Surging.Tools.Cli2
 {
@@ -20,13 +21,17 @@ namespace Surging.Tools.Cli2
         // private readonly CommandLineApplication _curlCommand;
         private readonly CommandLineApplication _runCommand;
         private readonly CommandLineApplication _lsCommand;
-       // private readonly CommandLineApplication _installCommand;
+        private readonly CommandLineApplication _newCommand;
+        private readonly CommandLineApplication _netModuleCommand;
+        // private readonly CommandLineApplication _installCommand;
         public Program()
         {
             // _curlCommand = new CommandLineApplication<CurlCommand>();
             _runCommand = new CommandLineApplication<RunCommand>();
             //_installCommand = new CommandLineApplication<InstallCommand>();
             _lsCommand = new CommandLineApplication<LsCommand>();
+            _newCommand = new CommandLineApplication<NewCommand>();
+            _netModuleCommand = new CommandLineApplication<NetModuleCommand>();
             _serviceProvider = ConfigureServices();
 
         }
@@ -47,7 +52,9 @@ namespace Surging.Tools.Cli2
         {
             var app = new CommandLineApplication<Program>();
             app.AddSubcommand(_runCommand);
-           // app.AddSubcommand(_installCommand);
+            // app.AddSubcommand(_installCommand);
+            _newCommand.AddSubcommand(_netModuleCommand); 
+            app.AddSubcommand(_newCommand);
             app.AddSubcommand(_lsCommand);
             app.Conventions
                 .UseDefaultConventions()

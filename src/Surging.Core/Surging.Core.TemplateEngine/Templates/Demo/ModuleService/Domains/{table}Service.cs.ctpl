@@ -1,0 +1,52 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using {{ prefix }}.IModuleServices.{{ project.name }};
+using {{ prefix }}.Core.Common.Response;
+using {{ prefix }}.IModuleServices.{{ project.name }}.Models; 
+using {{ prefix }}.Modules.{{ project.name }}.Repositories;
+using Surging.Core.CPlatform.Ioc;
+using Surging.Core.ProxyGenerator;
+using {{ prefix }}.Core.Common.BaseParam;
+
+namespace {{ prefix }}.Modules.{{ project.name }}.Domains
+{
+    public  class {{ table.name }}Service: ProxyServiceBase, I{{ table.name }}Service, ISingleInstance
+    {
+        private readonly {{ table.name }}Repository _repository;
+
+        public {{ table.name }}Service({{ table.name }}Repository repository){
+            _repository=repository;
+        }
+
+          public async Task<ApiResult<Page<{{ table.name }}Model>>> GetPageAsync(BaseQuery query)
+          {
+             var result = await _repository.GetPageAsync(query);
+            return ApiResult<Page<{{ table.name }}Model>>.Succeed(result);
+          }
+
+          public async Task<ApiResult<{{ table.name }}Model>> Get{{ table.name }}ById(int id)
+          {
+            var result = await _repository.Get{{ table.name }}ById(id);
+            return ApiResult<{{ table.name }}Model>.Succeed(result);
+          }
+
+         public async Task<ApiResult<bool>> Add({{ table.name }}Model model)
+         {
+            var result = await _repository.Add(model);
+            return ApiResult<bool>.Succeed(result);
+         }
+
+          public async Task<ApiResult<bool>> DeleteByIds (List<int> ids)
+          {
+               var result = await _repository.DeleteByIds(ids);
+            return ApiResult<bool>.Succeed(result);
+          }
+
+        public async Task<ApiResult<bool>> Modify({{ table.name }}Model model)
+        {
+            var result = await _repository.Modify(model);
+            return ApiResult<bool>.Succeed(result);
+        }
+    }
+}

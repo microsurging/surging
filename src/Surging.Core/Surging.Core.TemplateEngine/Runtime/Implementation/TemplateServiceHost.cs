@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Autofac;
+using Microsoft.Extensions.DependencyInjection;
+using Surging.Core.ServiceHosting.Internal;
+using Surging.Core.ServiceHosting.Startup;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
-using Microsoft.Extensions.DependencyInjection;
-using Surging.Core.ServiceHosting.Startup;
 
-namespace Surging.Core.ServiceHosting.Internal.Implementation
+namespace Surging.Core.TemplateEngine.Runtime.Implementation
 {
-    public class ServiceHost : IServiceHost
+    public class TemplateServiceHost: ITemplateServiceHost
     {
         private readonly ContainerBuilder _builder;
         private IStartup _startup;
@@ -18,13 +17,14 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
         private readonly IServiceProvider _hostingServiceProvider;
         private readonly List<Action<IContainer>> _mapServicesDelegates;
         private IApplicationLifetime _applicationLifetime;
-        private readonly List<Func<IContainer, Task>> _mapAsyncServicesDelegates;
+        private readonly List<Func<IContainer,Task>> _mapAsyncServicesDelegates;
 
-        public ServiceHost(ContainerBuilder builder,
+        public TemplateServiceHost(ContainerBuilder builder,
             IServiceProvider hostingServiceProvider,
             IHostLifetime hostLifetime,
-            List<Action<IContainer>> mapServicesDelegate,
-            List<Func<IContainer, Task>> mapAsyncServicesDelegates)
+             List<Action<IContainer>> mapServicesDelegate,
+             List<Func<IContainer,Task>> mapAsyncServicesDelegates
+             )
         {
             _builder = builder;
             _hostingServiceProvider = hostingServiceProvider;
@@ -62,15 +62,15 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
         }
 
         public async Task StopAsync(CancellationToken cancellationToken = default(CancellationToken))
-        { 
+        {
 
             using (var cts = new CancellationTokenSource(2000))
             using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken))
             {
-                var token = linkedCts.Token; 
-                _applicationLifetime?.StopApplication(); 
+                var token = linkedCts.Token;
+                _applicationLifetime?.StopApplication();
                 token.ThrowIfCancellationRequested();
-                await _hostLifetime.StopAsync(token); 
+                await _hostLifetime.StopAsync(token);
                 _applicationLifetime?.NotifyStopped();
             }
         }
@@ -120,7 +120,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
                 throw;
             }
         }
-        
+
         private void MapperServices(IContainer mapper)
         {
             foreach (var mapServices in _mapServicesDelegates)
@@ -133,7 +133,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
         {
             foreach (var mapServices in _mapAsyncServicesDelegates)
             {
-                await mapServices(mapper);
+               await mapServices(mapper);
             }
         }
     }

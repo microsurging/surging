@@ -1,0 +1,32 @@
+using Surging.Core.CPlatform.Ioc;
+using Surging.Core.CPlatform.Runtime.Client.Address.Resolvers.Implementation.Selectors.Implementation;
+using Surging.Core.CPlatform.Runtime.Server.Implementation.ServiceDiscovery.Attributes;
+using Surging.Core.CPlatform.Support.Attributes;
+using {{ prefix }}.Core.Common.Response;
+using {{ prefix }}.IModuleServices.{{ project.name }}.Models;
+using {{ prefix }}.Core.Common.BaseParam;
+using Surging.Core.CPlatform.Filters.Implementation;
+
+namespace {{ prefix }}.IModuleServices.{{ project.name }}
+{
+    [ServiceBundle("api/{Service}/{Method}")]
+    public interface I{{ table.name }}Service:IServiceKey
+    {
+        [Authorization(AuthType = AuthorizationType.JWT)] 
+        public Task<ApiResult<{{ table.name }}Model>> Get{{ table.name }}ById(int id);
+
+        [Authorization(AuthType = AuthorizationType.JWT)]
+        Task<ApiResult<Page<{{ table.name }}Model>>> GetPageAsync(BaseQuery query);
+
+        [Authorization(AuthType = AuthorizationType.JWT)] 
+        public Task<ApiResult<bool>> Add({{ table.name }}Model model);
+
+
+        [Authorization(AuthType = AuthorizationType.JWT)] 
+        public Task<ApiResult<bool>> Modify({{ table.name }}Model model);
+
+        [Authorization(AuthType = AuthorizationType.JWT)] 
+        public Task<ApiResult<bool>> DeleteByIds (List<int> ids);
+
+    }
+}
