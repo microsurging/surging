@@ -92,12 +92,21 @@ namespace Surging.Core.CPlatform.Support.Implementation
         protected abstract Task InitServiceCommandsAsync(IEnumerable<ServiceCommandDescriptor> routes);
 
 
-        public virtual async Task SetServiceCommandsAsync()
+        public virtual async Task SetServiceCommandsAsync(bool isOptional = false)
         {
             List<ServiceCommandDescriptor> serviceCommands = new List<ServiceCommandDescriptor>();
+            IEnumerable<ServiceEntry> serviceEntries = default;
+            if (isOptional)
+            {
+                serviceEntries = _serviceEntryManager.GetMicroEntries();
+            }
+            else
+            {
+                serviceEntries = _serviceEntryManager.GetEntries();
+            }
             await Task.Run(() =>
             {
-                var commands = (from q in _serviceEntryManager.GetEntries()
+                var commands = (from q in serviceEntries
                                 let k = q.Attributes
                                 select new { ServiceId = q.Descriptor.Id, Command = k.OfType<CommandAttribute>().FirstOrDefault() }).ToList();
                 commands.ForEach(command => serviceCommands.Add(ConvertServiceCommand(command.ServiceId, command.Command)));
@@ -172,5 +181,8 @@ namespace Surging.Core.CPlatform.Support.Implementation
             }
             return result;
         }
+
+        public abstract ValueTask AddNodeMonitorWatcher(string serviceId);
+        
     }
 }

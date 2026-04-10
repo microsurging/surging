@@ -1,0 +1,40 @@
+﻿using {{ prefix }}.DataAccess.{{ project.name }}.Entities; 
+using {{ prefix }}.DataAccess.{{ project.name }}.Implementation;
+using Microsoft.EntityFrameworkCore;
+using Surging.Core.CPlatform.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace {{ prefix }}.DataAccess.{{ project.name }}
+{
+    public class DataContext : DbContext
+    {
+        public DataContext()
+        {
+
+        }
+
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
+        {
+
+        }
+
+        public static DataContext Instance()
+        {
+            return new SqliteContext();
+            //return ServiceLocator.GetService<DataContext>(AppConfig.{{ project.name }}DataOptions.DatabaseType.ToString())??new DataContext();
+        }
+
+        {{ for item in tables }}
+        public DbSet<{{ item.name }}> {{ item.name }} { get; set; }
+        {{ end  }}
+
+        public virtual async Task InitializeAsync()
+        {
+              await Database.MigrateAsync();
+        }
+    }
+}

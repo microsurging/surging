@@ -2,6 +2,9 @@
 using Surging.Core.ServiceHosting.Internal;
 using Autofac;
 using Surging.Core.CPlatform.Engines;
+using Surging.Core.CPlatform;
+using Surging.Core.CPlatform.Routing;
+using Surging.Core.CPlatform.EventBus.Implementation;
 
 namespace Surging.Core.EventBusRabbitMQ
 {
@@ -13,7 +16,16 @@ namespace Surging.Core.EventBusRabbitMQ
             {
                 mapper.Resolve<IServiceEngineLifetime>().ServiceEngineStarted.Register(() =>
                 {
-                      mapper.Resolve<ISubscriptionAdapt>().SubscribeAt();
+                    mapper.Resolve<ISubscriptionAdapt>().SubscribeAt();
+                    new ServiceRouteWatch(mapper.Resolve<CPlatformContainer>(), () =>
+                    {
+                        var subscriptionAdapt = mapper.Resolve<ISubscriptionAdapt>();
+                        mapper.Resolve<IEventBus>().OnShutdown += (sender, args) =>
+                        {
+                            subscriptionAdapt.Unsubscribe();
+                        };
+                        mapper.Resolve<ISubscriptionAdapt>().SubscribeAt();
+                    });
                 });
             });
         }

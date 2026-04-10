@@ -17,17 +17,20 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
         private readonly IHostLifetime _hostLifetime;
         private readonly IServiceProvider _hostingServiceProvider;
         private readonly List<Action<IContainer>> _mapServicesDelegates;
-        private IApplicationLifetime _applicationLifetime; 
+        private IApplicationLifetime _applicationLifetime;
+        private readonly List<Func<IContainer, Task>> _mapAsyncServicesDelegates;
 
         public ServiceHost(ContainerBuilder builder,
             IServiceProvider hostingServiceProvider,
             IHostLifetime hostLifetime,
-             List<Action<IContainer>> mapServicesDelegate)
+            List<Action<IContainer>> mapServicesDelegate,
+            List<Func<IContainer, Task>> mapAsyncServicesDelegates)
         {
             _builder = builder;
             _hostingServiceProvider = hostingServiceProvider;
             _hostLifetime = hostLifetime;
-            _mapServicesDelegates = mapServicesDelegate; 
+            _mapServicesDelegates = mapServicesDelegate;
+            _mapAsyncServicesDelegates = mapAsyncServicesDelegates;
         }
 
         public void Dispose()
@@ -44,12 +47,15 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
         public async Task RunAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_applicationServices != null)
-                MapperServices(_applicationServices); 
+            {
+                MapperServices(_applicationServices);
+                await MapperAsyncServices(_applicationServices);
+            }
 
             if (_hostLifetime != null)
             {
                 _applicationLifetime = _hostingServiceProvider.GetService<IApplicationLifetime>();
-                await _hostLifetime.WaitForStartAsync(cancellationToken);
+                await _hostLifetime.WaitForStartAsync(cancellationToken, _applicationServices);
                 cancellationToken.ThrowIfCancellationRequested();
                 _applicationLifetime?.NotifyStarted();
             }
@@ -121,6 +127,14 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             {
                 mapServices(mapper);
             }
-        }   
+        }
+
+        private async Task MapperAsyncServices(IContainer mapper)
+        {
+            foreach (var mapServices in _mapAsyncServicesDelegates)
+            {
+                await mapServices(mapper);
+            }
+        }
     }
 }

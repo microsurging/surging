@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Surging.Core.ServiceHosting.Internal.Implementation
 {
@@ -14,6 +15,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
         private readonly List<Action<ContainerBuilder>> _registerServicesDelegates;
         private readonly List<Action<IConfigurationBuilder>> _configureDelegates;
         private readonly List<Action<IContainer>> _mapServicesDelegates;
+        private readonly List<Func<IContainer, Task>> _mapAsyncServicesDelegates;
         private  Action<ILoggingBuilder> _loggingDelegate;
 
         public ServiceHostBuilder()
@@ -22,6 +24,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             _registerServicesDelegates = new List<Action<ContainerBuilder>>();
             _configureDelegates = new List<Action<IConfigurationBuilder>>();
             _mapServicesDelegates = new List<Action<IContainer>>();
+            _mapAsyncServicesDelegates = new List<Func<IContainer, Task>>();
 
         }
 
@@ -40,7 +43,7 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
             var hostingServiceProvider = services.BuildServiceProvider();
             hostingServices.Populate(services);
             var hostLifetime = hostingServiceProvider.GetService<IHostLifetime>();
-            var host = new ServiceHost(hostingServices,hostingServiceProvider, hostLifetime,_mapServicesDelegates);
+            var host = new ServiceHost(hostingServices,hostingServiceProvider, hostLifetime,_mapServicesDelegates, _mapAsyncServicesDelegates);
             var container= host.Initialize();
             return host;
         }
@@ -52,6 +55,16 @@ namespace Surging.Core.ServiceHosting.Internal.Implementation
                 throw new ArgumentNullException(nameof(mapper));
             }
             _mapServicesDelegates.Add(mapper);
+            return this;
+        }
+
+        public IServiceHostBuilder MapServices(Func<IContainer, Task> mapper)
+        {
+            if (mapper == null)
+            {
+                throw new ArgumentNullException(nameof(mapper));
+            }
+            _mapAsyncServicesDelegates.Add(mapper);
             return this;
         }
 

@@ -1,0 +1,115 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using {{ prefix }}.Core.Common.Repsitories;
+using {{ prefix }}.DataAccess.{{ project.name }}.Entities;
+using {{ prefix }}.DataAccess.{{ project.name }};
+using Surging.Core.CPlatform.Ioc;
+using Surging.Core.CPlatform.Utilities;  
+using System.Linq; 
+using System.Threading.Tasks;
+using {{ prefix }}.IModuleServices.{{ project.name }}.Models;
+using {{ prefix }}.Core.Common.Response; 
+using {{ prefix }}.Core.Common.Extensions;
+using Microsoft.EntityFrameworkCore;
+using {{ prefix }}.Core.Common.Context;
+using {{ prefix }}.Core.Common.BaseParam;
+
+namespace {{ prefix }}.Modules.{{ project.name }}.Repositories
+{
+    public class {{ table.name }}Repository:BaseRepository
+    {
+        private readonly IEFRepository<{{ table.name }}> _repository;
+
+        public {{ table.name }}Repository(IEFRepository<{{ table.name }}> repository)
+        {
+            _repository = repository;
+        }
+
+        public async Task<bool> Add({{ table.name }}Model model)
+        {
+            using (var context = DataContext.Instance())
+            {
+                context.{{ table.name }}.Add(ToEntity(model));
+                return await context.SaveChangesAsync() > 0;
+            }
+        }
+
+        public Task<bool> DeleteByIds(List<int> ids)
+        {
+            using (var context = DataContext.Instance())
+            {
+                var result = _repository.Instance(context).ModifyBy(new {{ table.name }} { IsDeleted = true }, p => ids.Contains(p.Id), "IsDeleted") > 0;
+                return Task.FromResult(result);
+            }
+        }
+
+        public async Task<bool> Modify({{ table.name }}Model model)
+        {
+            using (var context = DataContext.Instance())
+            {
+                var entity = ToEntity(model);
+                var result = _repository.Instance(context).ModifyBy(entity, p => p.Id == model.Id,
+                    {{ for item in table.columns }}
+                "{{ item.name }}", 
+                {{ end }}
+                "Updater", "UpdateDate") > 0;
+                return await Task.FromResult(result);
+            }
+        }
+
+        public async Task<{{ table.name }}Model>  Get{{ table.name }}ById(int id)
+        {
+            using (var context = DataContext.Instance())
+            {
+                var result = await context.{{ table.name }}.AsNoTracking().Where(p => p.Id==id).FirstOrDefaultAsync();
+                return  ToModel(result); 
+            }
+        }
+
+        public async Task<Page<{{ table.name }}Model>> GetPageAsync(BaseQuery query)
+        {
+            using (var context = DataContext.Instance())
+            {
+                var result = new Page<{{ table.name }}Model>();
+                var entities = await _repository.Instance(context).GetPageList(query.Page, query.PageSize, x => x
+                .WhereIF(query.Id.HasValue, e => e.Id == query.Id)
+                .WhereIF(!query.Ids.IsNullOrEmpty(), e => query.Ids.Contains(e.Id))
+                  .Where(e => e.IsDeleted == false)
+                 .OrderByDescending(e => e.Id)
+                );
+                result.Items = entities.Items.Select(p => ToModel(p)).ToList();
+                result.Total = entities?.Total ?? 0;
+                result.PageCount = entities?.PageCount ?? 0;
+                result.PageIndex = entities?.PageIndex ?? 0;
+                result.PageSize = entities?.PageSize ?? 0;
+                return result;
+            }
+        }
+
+        public {{ table.name }}Model ToModel({{ table.name }} entity)
+        {
+            return entity == null ? default : new {{ table.name }}Model
+            {
+                Id = entity.Id,
+                UpdateDate = entity.UpdateDate,
+                {{ for item in table.columns }}
+                {{ item.name }} = entity.{{ item.name }},
+                {{ end }}
+            };
+        }
+
+        public {{ table.name }} ToEntity({{ table.name }}Model model)
+        {
+            return model == null ? default : new {{ table.name }}
+            {
+                UpdateDate = model.UpdateDate,
+                  {{ for item in table.columns }}
+                {{ item.name }} = model.{{ item.name }},
+                {{ end }}
+                Creater = IdentityContext.Get()?.UserId,
+                Updater = IdentityContext.Get()?.UserId,
+            };
+        }
+    }
+}

@@ -1,0 +1,217 @@
+{
+  "Surging": {
+    "Ip": "${Surging_Server_IP}|127.0.0.1",
+    "WatchInterval": 30,
+    "Port": "${Surging_Server_Port}|82",
+    "MappingIp": "${Mapping_ip}",
+    "MappingPort": "${Mapping_Port}",
+    "Token": "true",
+    "WanIp": "${WanIp}|192.168.249.103",
+    "DockerDeployMode": "${DockerDeployMode}|Standard",
+    "Libuv": true,
+    "SoBacklog": 100,
+    "Weight": 20,
+    "MaxPendingTasks": "${MaxPendingTasks}|64",
+    "DisableDiagnostic": true,
+    "EnableObjectConvert": true,
+    "MaxConcurrentRequests": 20,
+    "DisconnTimeInterval": 30,
+    "ExecutionTimeoutInMilliseconds": 1000,
+    "Protocol": "${Protocol}|None", //Http、Tcp、None
+    "RootPath": "${RootPath}|",
+    "WebRootPath": "${WebRootPath}|D:\\UserApp\\wwwroot",
+    "IsModulePerLifetimeScope": false,
+    "ReloadOnChange": false,
+    "Ports": {
+      "HttpPort": "${HttpPort}|28",
+      "WSPort": "${WSPort}|96",
+      "MQTTPort": "${MQTTPort}|97",
+      "GrpcPort": "${GrpcPort}|95"
+    },
+    "RequestCacheEnabled": false,
+    "Packages": [
+      {
+        "TypeName": "EnginePartModule",
+        "Using": "${UseEngineParts}|ServiceProxyModule;ProtokollwandlerModule;DotNettyModule;WebServiceModule;SerilogModule;NLogModule;ConsulModule;TcpProtocolModule;MessagePackModule;WSProtocolModule;MqttProtocolModule;EventBusRabbitMQModule;CachingModule;KestrelHttpModule;SwaggerModule;ApiGeteWayModule;SkywalkingModule;KestrelNLogModule;GrpcModule;ApolloModule;LiveStreamModule;"
+      },
+      {
+        "TypeName": "KestrelHttpModule",
+        "Using": "${KestrelHttps}|StageModule;KestrelHttpModule;SwaggerModule;WebServiceModule;"
+      }
+    ]
+  }, //如果引用多个同类型的组件，需要配置Packages，如果是自定义按需引用，无需配置Packages
+  "Consul": {
+    "ConnectionString": "${Register_Conn}|127.0.0.1:8500", // "127.0.0.1:8500,127.0.0.1:9500",
+    "SessionTimeout": "${Register_SessionTimeout}|50",
+    "RoutePath": "${Register_RoutePath}",
+    "ReloadOnChange": true,
+    "EnableChildrenMonitor": false,
+    "NotifyMode": "Watch"
+  },
+  "Stage": {
+    "EnableHttps": false, // 不设置ports，默认httpsPort:443
+    "CertificateFileName": "${CertificateFileName}|",
+    "CertificateLocation": "${CertificateLocation}|pfxs",
+    "CertificatePassword": "${CertificatePassword}|",
+    "IsCamelCaseResolver": "${IsCamelCaseResolver}|true",
+    "Protocols": "Http1AndHttp2",
+    "ApiGetWay": {
+      "AccessTokenExpireTimeSpan": "30",
+      "AuthorizationRoutePath": "api/user/authentication",
+      "AuthorizationServiceKey": "User",
+      "TokenEndpointPath": "api/oauth2/token",
+      "CacheMode": "ddlCache.Redis" //MemoryCache or  gateway.Redis save token
+    },
+    "AccessPolicy": {
+      "Origins": [ "http://127.0.0.1:1927", "http://localhost:927" ],
+      "AllowAnyHeader": true,
+      "AllowAnyMethod": true
+    },
+    "AccessSetting": [
+      {
+        "BlackList": "${blacklist}|127.0.0.1",
+        "Enable": false
+      },
+      {
+        "WhiteList": "${whitelist}|192.168.10.50,192.168.43.0/24,127.0.0.1",
+        "BlackList": "${blacklist}|192.168.2.50,192.168.1.0/16",
+        "RoutePath": "api/user/exists",
+        "Enable": true
+      }
+    ],
+    "HttpsPort": "${StageHttpsPorts}|449,446",
+    "HttpPorts": "${StageHttpPorts}|285,282,283"
+  },
+  "TransferContract": [
+    {
+      "Name": "webservice",
+      "Endpoint": "http://localhost:56398"
+    },
+    {
+      "Name": "restservice",
+      "Type": "Rest",
+      "Endpoint": "http://localhost:53023"
+    }
+  ],
+  "Dns": {
+    "RootDnsAddress": "192.168.1.1",
+    "QueryTimeout": 1000
+  },
+  "Swagger": {
+    "Info": {
+      "Version": "${SwaggerVersion}|V1", // "127.0.0.1:8500",
+      "Title": "${SwaggerTitle}|Surging Demo",
+      "Description": "${SwaggerDes}|surging demo",
+      "Contact": {
+        "Name": "API Support",
+        "Url": "https://github.com/dotnetcore/surging",
+        "Email": "fanliang1@hotmail.com"
+      },
+      "License": {
+        "Name": "MIT",
+        "Url": "https://github.com/dotnetcore/surging/blob/master/LICENSE"
+      }
+    },
+    "Options": {
+      "IgnoreFullyQualified": false,
+      "MapRoutePaths": [
+        {
+          "SourceRoutePath": "api/user/authentication",
+          "TargetRoutePath": "api/oauth2/token"
+        }
+      ]
+      // "IngressName": "Notice"
+    }
+  },
+  "EventBus_Kafka": {
+    "Servers": "${EventBusConnection}|localhost:9092",
+    "MaxQueueBuffering": "${MaxQueueBuffering}|10",
+    "MaxSocketBlocking": "${MaxSocketBlocking}|10",
+    "EnableAutoCommit": "${EnableAutoCommit}|false",
+    "LogConnectionClose": "${LogConnectionClose}|false",
+    "OffsetReset": "${OffsetReset}|earliest",
+    "GroupID": "${EventBusGroupID}|surgingdemo"
+  },
+  "WebSocket": {
+    "WaitTime": 2,
+    "KeepClean": false,
+    "Behavior": {
+      "IgnoreExtensions": true,
+      "EmitOnPing": false
+    }
+  },
+  "LiveStream": {
+    "RtmpPort": 76, //rtmp 端口
+    "HttpFlvPort": 8080, //HttpFlv 端口
+    "RtspPort": 46,
+    "RtpPort": 47,
+    "SaveRtspFilePath": "\\video",
+    "EnableLog": true, //是否启用log
+    "EnableHttpFlv": true,
+    "RouteTemplate": "live1", //直播服务路由规则名称，可以根据规则设置，比如集群节点2，可以设置live2, 集群节点3，可以设置live3
+    "ClusterNode": 2 //集群节点数里，会根据routetemplate 转推流
+  },
+  "EventBus": {
+    "EventBusConnection": "${EventBusConnection}|localhost",
+    "EventBusUserName": "${EventBusUserName}|guest",
+    "EventBusPassword": "${EventBusPassword}|guest",
+    "VirtualHost": "${VirtualHost}|/",
+    "MessageTTL": "${MessageTTL}|30000",
+    "RetryCount": "${RetryCount}|1",
+    "FailCount": "${FailCount}|3",
+    "prefetchCount": "${PrefetchCount}|0",
+    "BrokerName": "${BrokerName}|surging_demo",
+    "Port": "${EventBusPort}|5672"
+  },
+  "Zookeeper": {
+    "ConnectionString": "${Register_Conn}|127.0.0.1:2181", // "127.0.0.1:2181,127.0.0.1:2281",
+    "SessionTimeout": 50,
+    "ReloadOnChange": true
+  },
+  "RabbitMQ": {
+    "EventBus": {
+      "ConnectionName": "",
+      "ClientName": "",
+      "ExchangeName": ""
+    }
+
+  },
+  "Logging": {
+    "Debug": {
+      "LogLevel": {
+        "Default": "Information"
+      }
+    },
+    "Console": {
+      "IncludeScopes": true,
+      "LogLevel": {
+        "Default": "${LogLevel}|Debug"
+      }
+    },
+    "LogLevel": {
+      "Default": "${LogLevel}|Debug"
+    }
+  },
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.RollingFile" ],
+    "LevelSwitches": { "$controlSwitch": "Verbose" },
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Warning",
+        "System": "Warning"
+      }
+    },
+    "WriteTo:RollingFile": {
+      "Name": "RollingFile",
+      "Args": {
+        "formatter": "Serilog.Formatting.Elasticsearch.ElasticsearchJsonFormatter, Serilog.Formatting.Elasticsearch",
+        "pathFormat": "Logs\\log-{Date}.log"
+      }
+    },
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],
+    "Properties": {
+      "Application": "Sample"
+    }
+  }
+}

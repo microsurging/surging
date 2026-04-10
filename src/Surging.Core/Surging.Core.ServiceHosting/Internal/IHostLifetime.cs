@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autofac;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -9,7 +10,7 @@ namespace Surging.Core.ServiceHosting.Internal
    public interface IHostLifetime
     {
          
-        Task WaitForStartAsync(CancellationToken cancellationToken);
+        Task WaitForStartAsync(CancellationToken cancellationToken, IContainer container);
  
         Task StopAsync(CancellationToken cancellationToken);
     }

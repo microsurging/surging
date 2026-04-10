@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using {{ prefix }}.Core.Common.Repsitories.Models;
+
+namespace {{ prefix }}.IModuleServices.{{ project.name }}.Models
+{
+    public class {{ table.name }}Model:BaseModel
+    {
+    {{ for item in table.columns }}
+    public {{ item.datatype }} {{ item.name }} {get;set;}
+    {{ end  }}
+    }
+}
